@@ -1,35 +1,70 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Container, Stack, TextField, Typography } from "@mui/material";
+import TaskList from "./components/TaskList";
+
+const first = {
+    prompt: "I need you to help me do this task",
+    text: "Do this first",
+    subTasks: [],
+    completed: false,
+};
+
+const next = {
+    prompt: "I need you to help me do this task",
+    text: "Do this first",
+    subTasks: [],
+    completed: true,
+};
+
+const last = {
+    prompt: "I need you to help me do this task",
+    text: "Do this first",
+    subTasks: [],
+    completed: false,
+};
+
+const DUMMY_TASKS = [
+    {
+        prompt: "I need you to help me do this task",
+        text: "Task Name",
+        subTasks: [first, next, last],
+        completed: true,
+    },
+    {
+        prompt: "I need you to help me do this task",
+        text: "Task Name",
+        subTasks: [first, next, last],
+        completed: false,
+    },
+    {
+        prompt: "I need you to help me do this task",
+        text: "Task Name",
+        subTasks: [first, next, last],
+        completed: false,
+    },
+    {
+        prompt: "I need you to help me do this task",
+        text: "Task Name",
+        subTasks: [first, next, last],
+        completed: false,
+    },
+    {
+        prompt: "I need you to help me do this task",
+        text: "Task Name",
+        subTasks: [first, next, last],
+        completed: false,
+    },
+];
 
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    return (
+        <Container maxWidth="sm">
+            <Stack alignItems="center" sx={{ mt: 4 }}>
+                <Typography variant="h4">Type a task below:</Typography>
+                <TextField />
+                <TaskList tasks={DUMMY_TASKS} />
+            </Stack>
+        </Container>
+    );
 }
 
-export default App
+export default App;
