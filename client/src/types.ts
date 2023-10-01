@@ -1,6 +1,7 @@
-export interface Task {
+export interface Quest {
     prompt: string,
     text: string,
-    subTasks: Task[],
-    completed: boolean
+    subQuests: Quest[],
+    completed: boolean,
+    id: string
 }
