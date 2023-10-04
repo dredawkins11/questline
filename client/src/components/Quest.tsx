@@ -13,15 +13,18 @@ import {
     ExpandMore as ExpandMoreIcon,
     Add as AddIcon,
     Edit as EditIcon,
+    Check as CheckIcon,
+    Delete as DeleteIcon,
 } from "@mui/icons-material";
 import { useState } from "react";
 
 interface QuestProps {
     quest: Quest;
     onEditQuest: (questText: string, id: string) => void;
+    onDeleteQuest: (id: string) => void;
 }
 
-const Quest = ({ quest, onEditQuest }: QuestProps) => {
+const Quest = ({ quest, onEditQuest, onDeleteQuest }: QuestProps) => {
     const [questExpanded, setQuestExpanded] = useState(false);
     const [editing, setEditing] = useState(false);
     const [questText, setQuestText] = useState(quest.text);
@@ -31,6 +34,10 @@ const Quest = ({ quest, onEditQuest }: QuestProps) => {
         onEditQuest(questText, quest.id);
         setEditing(false);
     };
+
+    const handleDeleteQuest = () => {
+        onDeleteQuest(quest.id)
+    }
 
     return (
         <>
@@ -71,22 +78,33 @@ const Quest = ({ quest, onEditQuest }: QuestProps) => {
                                     {quest.text}
                                 </Typography>
                             ) : (
-                                <TextField
-                                    value={questText}
-                                    onChange={(e) =>
-                                        setQuestText(e.target.value)
-                                    }
-                                    size="small"
-                                    variant="standard"
-                                    hiddenLabel
-                                    sx={{
-                                        flexGrow: 1,
-                                        marginRight: 1,
-                                    }}
-                                />
+                                <>
+                                    <TextField
+                                        value={questText}
+                                        onChange={(e) =>
+                                            setQuestText(e.target.value)
+                                        }
+                                        size="small"
+                                        variant="standard"
+                                        hiddenLabel
+                                        sx={{
+                                            flexGrow: 1,
+                                            marginRight: 1,
+                                        }}
+                                    />
+                                    <IconButton size="small" onClick={handleDeleteQuest}>
+                                        <DeleteIcon
+                                            sx={{ fontSize: "1.25rem" }}
+                                        />
+                                    </IconButton>
+                                </>
                             )}
                             <IconButton size="small" onClick={toggleEdit}>
-                                <EditIcon sx={{ fontSize: "1.25rem" }} />
+                                {!editing ? (
+                                    <EditIcon sx={{ fontSize: "1.25rem" }} />
+                                ) : (
+                                    <CheckIcon sx={{ fontSize: "1.25rem" }} />
+                                )}
                             </IconButton>
                         </Box>
                     </AccordionSummary>
@@ -96,6 +114,7 @@ const Quest = ({ quest, onEditQuest }: QuestProps) => {
                                 key={i}
                                 quest={quest}
                                 onEditQuest={onEditQuest}
+                                onDeleteQuest={onDeleteQuest}
                             />
                         ))}
                     </AccordionDetails>
@@ -126,20 +145,29 @@ const Quest = ({ quest, onEditQuest }: QuestProps) => {
                     {!editing ? (
                         <Typography flexGrow={1}>{quest.text}</Typography>
                     ) : (
-                        <TextField
-                            value={questText}
-                            onChange={(e) => setQuestText(e.target.value)}
-                            size="small"
-                            variant="standard"
-                            hiddenLabel
-                            sx={{
-                                flexGrow: 1,
-                                marginRight: 1,
-                            }}
-                        />
+                        <>
+                            <TextField
+                                value={questText}
+                                onChange={(e) => setQuestText(e.target.value)}
+                                size="small"
+                                variant="standard"
+                                hiddenLabel
+                                sx={{
+                                    flexGrow: 1,
+                                    marginRight: 1,
+                                }}
+                            />
+                            <IconButton size="small" onClick={handleDeleteQuest}>
+                                <DeleteIcon sx={{ fontSize: "1.25rem" }} />
+                            </IconButton>
+                        </>
                     )}
                     <IconButton size="small" onClick={toggleEdit}>
-                        <EditIcon sx={{ fontSize: "1.25rem" }} />
+                        {!editing ? (
+                            <EditIcon sx={{ fontSize: "1.25rem" }} />
+                        ) : (
+                            <CheckIcon sx={{ fontSize: "1.25rem" }} />
+                        )}
                     </IconButton>
                     <IconButton size="small">
                         <AddIcon />

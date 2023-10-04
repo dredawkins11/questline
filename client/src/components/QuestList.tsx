@@ -4,9 +4,10 @@ import Quest from "./Quest";
 interface QuestListProps {
     quests: Quest[],
     onEditQuest: (questText: string, id: string) => void;
+    onDeleteQuest: (id: string) => void;
 }
 
-const QuestList = ({ quests, onEditQuest }: QuestListProps) => {
+const QuestList = ({ quests, onEditQuest, onDeleteQuest}: QuestListProps) => {
     return (
         <Stack
             width={1}
@@ -15,8 +16,8 @@ const QuestList = ({ quests, onEditQuest }: QuestListProps) => {
             sx={{ overflowY: "scroll" }}
             padding={1}
         >
-            {quests.map((quest, i) => (
-                <Quest key={i} quest={quest} onEditQuest={onEditQuest} />
+            {quests.map((quest) => (
+                <Quest key={quest.id} quest={quest} onEditQuest={onEditQuest} onDeleteQuest={onDeleteQuest} />
             ))}
         </Stack>
     );

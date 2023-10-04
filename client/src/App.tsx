@@ -9,7 +9,7 @@ const first = {
     text: "Do this first",
     subQuests: [],
     completed: false,
-    id: "6"
+    id: "6",
 };
 
 const next = {
@@ -17,7 +17,7 @@ const next = {
     text: "Do this next",
     subQuests: [],
     completed: true,
-    id: "7"
+    id: "7",
 };
 
 const last = {
@@ -25,7 +25,7 @@ const last = {
     text: "Do this last",
     subQuests: [],
     completed: false,
-    id: "8"
+    id: "8",
 };
 
 const nested = {
@@ -33,49 +33,50 @@ const nested = {
     text: "Quest Name",
     subQuests: [first, next, last],
     completed: true,
-    id: "9"
+    id: "9",
 };
 
 const DUMMY_TASKS = [
     {
         prompt: "I need you to help me do this quest",
-        text: "Quest Name",
+        text: "Quest Name1",
         subQuests: [first, next, last],
         completed: true,
-        id: "1"
+        id: "1",
     },
     {
         prompt: "I need you to help me do this quest",
-        text: "Quest Name",
+        text: "Quest Name2",
         subQuests: [],
         completed: false,
-        id: "2"
+        id: "2",
     },
     {
         prompt: "I need you to help me do this quest",
-        text: "Quest Name",
+        text: "Quest Name3",
         subQuests: [first, next, nested, last],
         completed: false,
-        id: "3"
+        id: "3",
     },
     {
         prompt: "I need you to help me do this quest",
-        text: "Quest Name",
+        text: "Quest Name4",
         subQuests: [first, next, last],
         completed: false,
-        id: "4"
+        id: "4",
     },
     {
         prompt: "I need you to help me do this quest",
-        text: "Quest Name",
+        text: "Quest Name5",
         subQuests: [first, next, last],
         completed: false,
-        id: "5"
+        id: "5",
     },
 ];
 
 function App() {
     const [quests, setQuests] = useState<Quest[]>(DUMMY_TASKS);
+    console.log(quests);
 
     const addQuest = (questPrompt: string) => {
         const newQuest = {
@@ -83,30 +84,38 @@ function App() {
             text: questPrompt,
             subQuests: [],
             completed: false,
-            id: `${quests.length + 1}`
+            id: `${quests.length + 1}`,
         };
         setQuests((prevState) => [...prevState, newQuest]);
     };
 
     const editQuest = (questText: string, id: string) => {
         setQuests((prevState) => {
-            const targetQuest = prevState.find( quest => quest.id == id)
-            if (targetQuest){
-                targetQuest.text = questText
+            const targetQuest = prevState.find((quest) => quest.id == id);
+            if (targetQuest) {
+                targetQuest.text = questText;
             }
-            return prevState
-        })
-    }
+            return prevState;
+        });
+    };
+
+    const deleteQuest = (id: string) => {
+        setQuests((prevState) => prevState.filter((quest) => quest.id != id));
+    };
 
     return (
         <Container maxWidth="sm" sx={{ height: "100vh" }}>
             <Stack height="100vh" alignItems="center">
-                <Typography variant="h4"  margin={5}>
+                <Typography variant="h4" margin={5}>
                     Quest<strong>Line</strong>
                 </Typography>
                 <Box width={1} maxHeight={1} overflow="hidden">
                     <QuestForm onAddQuest={addQuest} />
-                    <QuestList quests={quests} onEditQuest={editQuest}/>
+                    <QuestList
+                        quests={quests}
+                        onEditQuest={editQuest}
+                        onDeleteQuest={deleteQuest}
+                    />
                 </Box>
             </Stack>
         </Container>
