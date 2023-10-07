@@ -1,7 +1,7 @@
 import { Box, Container, Stack, Typography } from "@mui/material";
 import QuestList from "./components/QuestList";
 import QuestForm from "./components/QuestForm";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Quest } from "./types";
 
 const first = {
@@ -75,8 +75,23 @@ const DUMMY_TASKS = [
 ];
 
 function App() {
-    const [quests, setQuests] = useState<Quest[]>(DUMMY_TASKS);
-    console.log(quests);
+    // const fetchQuest = async () => {
+    //     const res = await fetch("/quest", {
+    //         method: "POST",
+    //         body: JSON.stringify({
+    //             task: "Do the dishes"
+    //         })
+    //     })
+    //     return res
+    // }
+    // console.log(fetchQuest())
+    const [quests, setQuests] = useState<Quest[]>([]);
+
+    useEffect(() => {
+        const storedQuests: string | null = localStorage.getItem("quests");
+        if (storedQuests == null) return;
+        setQuests(JSON.parse(storedQuests));
+    }, [quests]);
 
     const addQuest = (questPrompt: string) => {
         const newQuest = {
@@ -86,7 +101,11 @@ function App() {
             completed: false,
             id: `${quests.length + 1}`,
         };
-        setQuests((prevState) => [...prevState, newQuest]);
+        setQuests((prevState) => {
+            const quests = [...prevState, newQuest];
+            localStorage.setItem("quests", JSON.stringify(quests));
+            return quests;
+        });
     };
 
     const editQuest = (questText: string, id: string) => {
@@ -95,12 +114,17 @@ function App() {
             if (targetQuest) {
                 targetQuest.text = questText;
             }
+            localStorage.setItem("quests", JSON.stringify(prevState));
             return prevState;
         });
     };
 
     const deleteQuest = (id: string) => {
-        setQuests((prevState) => prevState.filter((quest) => quest.id != id));
+        setQuests((prevState) => {
+            const quests = prevState.filter((quest) => quest.id != id);
+            localStorage.setItem("quests", JSON.stringify(quests))
+            return quests
+        });
     };
 
     return (
