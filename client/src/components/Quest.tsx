@@ -20,7 +20,7 @@ import { useState } from "react";
 
 interface QuestProps {
     quest: Quest;
-    onEditQuest: (questText: string, id: string) => void;
+    onEditQuest: (quest: Quest, id: string) => void;
     onDeleteQuest: (id: string) => void;
 }
 
@@ -31,7 +31,8 @@ const Quest = ({ quest, onEditQuest, onDeleteQuest }: QuestProps) => {
 
     const toggleEdit = () => {
         if (!editing) return setEditing(true);
-        onEditQuest(questText, quest.id);
+        const editedQuest = {...quest, text: questText}
+        onEditQuest(editedQuest, quest.id);
         setEditing(false);
     };
 

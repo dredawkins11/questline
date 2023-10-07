@@ -87,11 +87,11 @@ function App() {
     // console.log(fetchQuest())
     const [quests, setQuests] = useState<Quest[]>([]);
 
+    const storedQuests: string | null = localStorage.getItem("quests");
     useEffect(() => {
-        const storedQuests: string | null = localStorage.getItem("quests");
         if (storedQuests == null) return;
         setQuests(JSON.parse(storedQuests));
-    }, [quests]);
+    }, [storedQuests]);
 
     const addQuest = (questPrompt: string) => {
         const newQuest = {
@@ -108,14 +108,15 @@ function App() {
         });
     };
 
-    const editQuest = (questText: string, id: string) => {
+    const editQuest = (quest: Quest, id: string) => {
         setQuests((prevState) => {
-            const targetQuest = prevState.find((quest) => quest.id == id);
-            if (targetQuest) {
-                targetQuest.text = questText;
-            }
-            localStorage.setItem("quests", JSON.stringify(prevState));
-            return prevState;
+            const quests = [...prevState]
+            let targetQuest = quests.findIndex((quest) => quest.id == id);
+            console.log(targetQuest)
+            if (targetQuest != -1) quests[targetQuest] = quest;
+            console.log(quests)
+            localStorage.setItem("quests", JSON.stringify(quests));
+            return quests;
         });
     };
 

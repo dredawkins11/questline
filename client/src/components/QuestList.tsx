@@ -3,7 +3,7 @@ import Quest from "./Quest";
 
 interface QuestListProps {
     quests: Quest[],
-    onEditQuest: (questText: string, id: string) => void;
+    onEditQuest: (quest: Quest, id: string) => void;
     onDeleteQuest: (id: string) => void;
 }
 
