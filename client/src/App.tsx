@@ -1,91 +1,100 @@
-import { Box, Container, Stack, Typography } from "@mui/material";
+import {
+    Box,
+    Button,
+    Container,
+    Modal,
+    Paper,
+    Stack,
+    Typography,
+} from "@mui/material";
 import QuestList from "./components/QuestList";
 import QuestForm from "./components/QuestForm";
 import { useEffect, useState } from "react";
 import { Quest } from "./types";
 
-const first = {
-    prompt: "I need you to help me do this quest",
-    text: "Do this first",
-    subQuests: [],
-    completed: false,
-    id: "6",
-};
+// const first = {
+//     prompt: "I need you to help me do this quest",
+//     text: "Do this first",
+//     subQuests: [],
+//     completed: false,
+//     id: "6",
+// };
 
-const next = {
-    prompt: "I need you to help me do this quest",
-    text: "Do this next",
-    subQuests: [],
-    completed: true,
-    id: "7",
-};
+// const next = {
+//     prompt: "I need you to help me do this quest",
+//     text: "Do this next",
+//     subQuests: [],
+//     completed: true,
+//     id: "7",
+// };
 
-const last = {
-    prompt: "I need you to help me do this quest",
-    text: "Do this last",
-    subQuests: [],
-    completed: false,
-    id: "8",
-};
+// const last = {
+//     prompt: "I need you to help me do this quest",
+//     text: "Do this last",
+//     subQuests: [],
+//     completed: false,
+//     id: "8",
+// };
 
-const nested = {
-    prompt: "This is a nested quest",
-    text: "Quest Name",
-    subQuests: [first, next, last],
-    completed: true,
-    id: "9",
-};
+// const nested = {
+//     prompt: "This is a nested quest",
+//     text: "Quest Name",
+//     subQuests: [first, next, last],
+//     completed: true,
+//     id: "9",
+// };
 
-const DUMMY_TASKS = [
-    {
-        prompt: "I need you to help me do this quest",
-        text: "Quest Name1",
-        subQuests: [first, next, last],
-        completed: true,
-        id: "1",
-    },
-    {
-        prompt: "I need you to help me do this quest",
-        text: "Quest Name2",
-        subQuests: [],
-        completed: false,
-        id: "2",
-    },
-    {
-        prompt: "I need you to help me do this quest",
-        text: "Quest Name3",
-        subQuests: [first, next, nested, last],
-        completed: false,
-        id: "3",
-    },
-    {
-        prompt: "I need you to help me do this quest",
-        text: "Quest Name4",
-        subQuests: [first, next, last],
-        completed: false,
-        id: "4",
-    },
-    {
-        prompt: "I need you to help me do this quest",
-        text: "Quest Name5",
-        subQuests: [first, next, last],
-        completed: false,
-        id: "5",
-    },
-];
+// const DUMMY_TASKS = [
+//     {
+//         prompt: "I need you to help me do this quest",
+//         text: "Quest Name1",
+//         subQuests: [first, next, last],
+//         completed: true,
+//         id: "1",
+//     },
+//     {
+//         prompt: "I need you to help me do this quest",
+//         text: "Quest Name2",
+//         subQuests: [],
+//         completed: false,
+//         id: "2",
+//     },
+//     {
+//         prompt: "I need you to help me do this quest",
+//         text: "Quest Name3",
+//         subQuests: [first, next, nested, last],
+//         completed: false,
+//         id: "3",
+//     },
+//     {
+//         prompt: "I need you to help me do this quest",
+//         text: "Quest Name4",
+//         subQuests: [first, next, last],
+//         completed: false,
+//         id: "4",
+//     },
+//     {
+//         prompt: "I need you to help me do this quest",
+//         text: "Quest Name5",
+//         subQuests: [first, next, last],
+//         completed: false,
+//         id: "5",
+//     },
+// ];
+
+const randomId = () =>
+    Date.now().toString(36) + Math.random().toString(36).substring(2);
+
+const STEP_AMOUNT = 3
+
+interface QuestResponseBody {
+    steps: string[];
+}
 
 function App() {
-    // const fetchQuest = async () => {
-    //     const res = await fetch("/quest", {
-    //         method: "POST",
-    //         body: JSON.stringify({
-    //             task: "Do the dishes"
-    //         })
-    //     })
-    //     return res
-    // }
-    // console.log(fetchQuest())
     const [quests, setQuests] = useState<Quest[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const storedQuests: string | null = localStorage.getItem("quests");
     useEffect(() => {
@@ -93,14 +102,45 @@ function App() {
         setQuests(JSON.parse(storedQuests));
     }, [storedQuests]);
 
-    const addQuest = (questPrompt: string) => {
-        const newQuest = {
+    const addQuest = async (questPrompt: string) => {
+        const newQuest: Quest = {
             prompt: questPrompt,
             text: questPrompt,
             subQuests: [],
             completed: false,
-            id: `${quests.length + 1}`,
+            id: `${randomId()}`,
         };
+
+        setLoading(true);
+        try {
+            const res = await fetch("/quest", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    stepAmount: STEP_AMOUNT,
+                    task: questPrompt,
+                }),
+            });
+            if (res.status == 400) {
+                setLoading(false);
+                return setErrorMessage("Bad Prompt");
+            }
+            const data: QuestResponseBody = await res.json();
+            data?.steps.forEach((subQuest) => {
+                const quest = {
+                    prompt: questPrompt,
+                    text: subQuest,
+                    subQuests: [],
+                    completed: false,
+                    id: `${randomId()}`,
+                };
+                newQuest.subQuests.push(quest);
+            });
+        } catch (error) {
+            console.log(error);
+        }
+
+        setLoading(false);
         setQuests((prevState) => {
             const quests = [...prevState, newQuest];
             localStorage.setItem("quests", JSON.stringify(quests));
@@ -110,11 +150,11 @@ function App() {
 
     const editQuest = (quest: Quest, id: string) => {
         setQuests((prevState) => {
-            const quests = [...prevState]
+            const quests = [...prevState];
             let targetQuest = quests.findIndex((quest) => quest.id == id);
-            console.log(targetQuest)
+            console.log(targetQuest);
             if (targetQuest != -1) quests[targetQuest] = quest;
-            console.log(quests)
+            console.log(quests);
             localStorage.setItem("quests", JSON.stringify(quests));
             return quests;
         });
@@ -123,8 +163,8 @@ function App() {
     const deleteQuest = (id: string) => {
         setQuests((prevState) => {
             const quests = prevState.filter((quest) => quest.id != id);
-            localStorage.setItem("quests", JSON.stringify(quests))
-            return quests
+            localStorage.setItem("quests", JSON.stringify(quests));
+            return quests;
         });
     };
 
@@ -140,9 +180,37 @@ function App() {
                         quests={quests}
                         onEditQuest={editQuest}
                         onDeleteQuest={deleteQuest}
+                        loading={loading}
                     />
                 </Box>
             </Stack>
+            <Modal open={errorMessage != null}>
+                <Container
+                    maxWidth="sm"
+                    sx={{
+                        height: "100vh",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                    }}
+                >
+                    <Paper
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            marginTop: 10,
+                            width: 0.7,
+                            padding: 3,
+                            gap: 2
+                        }}
+                    >
+                        <Typography variant="h4" textAlign="center">
+                            {errorMessage}
+                        </Typography>
+                        <Button variant="contained" onClick={() => setErrorMessage(null)}>Okay</Button>
+                    </Paper>
+                </Container>
+            </Modal>
         </Container>
     );
 }

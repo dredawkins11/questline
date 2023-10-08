@@ -13,8 +13,13 @@ app.use( (req, res, next) => {
 })
 
 app.post("/quest", async (req, res) => {
-    const quest = await newQuest(req.body.task)
-    res.send(quest)
+    try {
+        const quest = await newQuest(req.body.task, req.body.stepAmount)
+        res.send(quest)
+    } catch (error) {
+        console.log(error)
+        res.status(400).send("Bad prompt")
+    }
 })
 
 app.listen(PORT, () => {
