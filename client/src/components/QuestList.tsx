@@ -6,7 +6,8 @@ import { QuestContext } from "../store/QuestContextProvider";
 interface QuestListProps {}
 
 const QuestList = ({}: QuestListProps) => {
-    const {loading, quests, editQuest, deleteQuest} = useContext(QuestContext);
+    const { loading, quests, getChildren, editQuest, deleteQuest } =
+        useContext(QuestContext);
     return (
         <Stack
             width={1}
@@ -15,14 +16,18 @@ const QuestList = ({}: QuestListProps) => {
             sx={{ overflowY: "scroll" }}
             padding={1}
         >
-            {quests.map((quest) => (
-                <Quest
-                    key={quest.id}
-                    quest={quest}
-                    onEditQuest={editQuest}
-                    onDeleteQuest={deleteQuest}
-                />
-            ))}
+            {quests.map((quest) => {
+                if (quest.parent) return
+                return (
+                    <Quest
+                        key={quest.id}
+                        quest={quest}
+                        children={getChildren(quest.id)}
+                        onEditQuest={editQuest}
+                        onDeleteQuest={deleteQuest}
+                    />
+                );
+            })}
             {loading && (
                 <Box display="flex" alignItems="center" gap={2}>
                     <Skeleton

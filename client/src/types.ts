@@ -1,7 +1,7 @@
 export interface Quest {
-    prompt: string,
-    text: string,
-    subQuests: Quest[],
-    completed: boolean,
-    id: string
+    prompt: string;
+    text: string;
+    parent?: string;
+    completed: boolean;
+    id: string;
 }

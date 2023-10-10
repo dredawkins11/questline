@@ -16,33 +16,37 @@ import {
     Check as CheckIcon,
     Delete as DeleteIcon,
 } from "@mui/icons-material";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { QuestContext } from "../store/QuestContextProvider";
 
 interface QuestProps {
     quest: Quest;
+    children: Quest[];
     onEditQuest: (quest: Quest, id: string) => void;
     onDeleteQuest: (id: string) => void;
 }
 
-const Quest = ({ quest, onEditQuest, onDeleteQuest }: QuestProps) => {
+const Quest = ({ quest, children, onEditQuest, onDeleteQuest }: QuestProps) => {
+    const { getChildren } = useContext(QuestContext);
+
     const [questExpanded, setQuestExpanded] = useState(false);
     const [editing, setEditing] = useState(false);
     const [questText, setQuestText] = useState(quest.text);
 
     const toggleEdit = () => {
         if (!editing) return setEditing(true);
-        const editedQuest = {...quest, text: questText}
+        const editedQuest = { ...quest, text: questText };
         onEditQuest(editedQuest, quest.id);
         setEditing(false);
     };
 
     const handleDeleteQuest = () => {
-        onDeleteQuest(quest.id)
-    }
+        onDeleteQuest(quest.id);
+    };
 
     return (
         <>
-            {quest.subQuests.length > 0 ? (
+            {children.length > 0 ? (
                 <Accordion
                     disableGutters
                     sx={{
@@ -93,7 +97,10 @@ const Quest = ({ quest, onEditQuest, onDeleteQuest }: QuestProps) => {
                                             marginRight: 1,
                                         }}
                                     />
-                                    <IconButton size="small" onClick={handleDeleteQuest}>
+                                    <IconButton
+                                        size="small"
+                                        onClick={handleDeleteQuest}
+                                    >
                                         <DeleteIcon
                                             sx={{ fontSize: "1.25rem" }}
                                         />
@@ -110,10 +117,11 @@ const Quest = ({ quest, onEditQuest, onDeleteQuest }: QuestProps) => {
                         </Box>
                     </AccordionSummary>
                     <AccordionDetails>
-                        {quest.subQuests.map((quest, i) => (
+                        {children.map((quest) => (
                             <Quest
-                                key={i}
+                                key={quest.id}
                                 quest={quest}
+                                children={getChildren(quest.id)}
                                 onEditQuest={onEditQuest}
                                 onDeleteQuest={onDeleteQuest}
                             />
@@ -158,7 +166,10 @@ const Quest = ({ quest, onEditQuest, onDeleteQuest }: QuestProps) => {
                                     marginRight: 1,
                                 }}
                             />
-                            <IconButton size="small" onClick={handleDeleteQuest}>
+                            <IconButton
+                                size="small"
+                                onClick={handleDeleteQuest}
+                            >
                                 <DeleteIcon sx={{ fontSize: "1.25rem" }} />
                             </IconButton>
                         </>
