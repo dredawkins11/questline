@@ -1,19 +1,21 @@
 import { AutoAwesome } from "@mui/icons-material";
 import { Box, Button, TextField, ToggleButton, Tooltip } from "@mui/material";
-import { useState, FormEventHandler } from "react";
+import { useState, FormEventHandler, useContext } from "react";
+import { QuestContext } from "../store/QuestContextProvider";
 
 interface QuestFormProps {
-    onAddQuest: (questPrompt: string) => void;
 }
 
-const QuestForm = ({ onAddQuest }: QuestFormProps) => {
+const QuestForm = ({ }: QuestFormProps) => {
+    const {addQuest} = useContext(QuestContext)
+
     const [questPrompt, setQuestPrompt] = useState<string>();
     const [isManual, setIsManual] = useState<boolean>(true);
 
     const handleQuestSubmit: FormEventHandler = (e) => {
         e.preventDefault();
         if (questPrompt) {
-            onAddQuest(questPrompt);
+            addQuest(questPrompt);
         }
     };
 

@@ -1,19 +1,12 @@
 import { Box, Skeleton, Stack } from "@mui/material";
 import Quest from "./Quest";
+import { useContext } from "react";
+import { QuestContext } from "../store/QuestContextProvider";
 
-interface QuestListProps {
-    quests: Quest[];
-    onEditQuest: (quest: Quest, id: string) => void;
-    onDeleteQuest: (id: string) => void;
-    loading: boolean;
-}
+interface QuestListProps {}
 
-const QuestList = ({
-    quests,
-    onEditQuest,
-    onDeleteQuest,
-    loading,
-}: QuestListProps) => {
+const QuestList = ({}: QuestListProps) => {
+    const {loading, quests, editQuest, deleteQuest} = useContext(QuestContext);
     return (
         <Stack
             width={1}
@@ -26,15 +19,21 @@ const QuestList = ({
                 <Quest
                     key={quest.id}
                     quest={quest}
-                    onEditQuest={onEditQuest}
-                    onDeleteQuest={onDeleteQuest}
+                    onEditQuest={editQuest}
+                    onDeleteQuest={deleteQuest}
                 />
             ))}
             {loading && (
                 <Box display="flex" alignItems="center" gap={2}>
-                    <Skeleton variant="rounded" sx={{ aspectRatio: "1/1", height: "3rem" }} />
-                    <Skeleton variant="text" sx={{flexGrow: 10 }} />
-                    <Skeleton variant="rounded" sx={{flexGrow: 1, height: "2rem" }} />
+                    <Skeleton
+                        variant="rounded"
+                        sx={{ aspectRatio: "1/1", height: "3rem" }}
+                    />
+                    <Skeleton variant="text" sx={{ flexGrow: 10 }} />
+                    <Skeleton
+                        variant="rounded"
+                        sx={{ flexGrow: 1, height: "2rem" }}
+                    />
                 </Box>
             )}
         </Stack>
