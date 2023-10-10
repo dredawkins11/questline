@@ -85,7 +85,24 @@ import { Quest } from "./types";
 const randomId = () =>
     Date.now().toString(36) + Math.random().toString(36).substring(2);
 
-const STEP_AMOUNT = 3
+const searchQuest = (
+    quest: Quest,
+    targetId: string,
+    i: number,
+    path: number[] = []
+): number[] | undefined => {
+    if (quest.id === targetId) {
+        path.push(i);
+        return path;
+    }
+    if (quest.subQuests.length > 0) path.push(i);
+    for (let i = 0; i < quest.subQuests.length; i++) {
+        const result = searchQuest(quest.subQuests[i], targetId, i, path);
+        if (result) return result;
+    }
+};
+
+const STEP_AMOUNT = 3;
 
 interface QuestResponseBody {
     steps: string[];
@@ -151,10 +168,22 @@ function App() {
     const editQuest = (quest: Quest, id: string) => {
         setQuests((prevState) => {
             const quests = [...prevState];
-            let targetQuest = quests.findIndex((quest) => quest.id == id);
-            console.log(targetQuest);
-            if (targetQuest != -1) quests[targetQuest] = quest;
-            console.log(quests);
+
+            let targetPath: number[] = [];
+            let searching = true;
+            for (let i = 0; i < quests.length && searching; i++) {
+                const searchResult = searchQuest(quests[i], id, i);
+                if (searchResult) {
+                    searching = false;
+                    targetPath = searchResult;
+                }
+            }
+            let targetQuest: Quest = quests[targetPath[0]];
+            for (let i = 1; i < targetPath.length; i++) {
+                targetQuest = targetQuest.subQuests[targetPath[i]]
+            }
+            
+            targetQuest = quest;
             localStorage.setItem("quests", JSON.stringify(quests));
             return quests;
         });
@@ -201,13 +230,18 @@ function App() {
                             marginTop: 10,
                             width: 0.7,
                             padding: 3,
-                            gap: 2
+                            gap: 2,
                         }}
                     >
                         <Typography variant="h4" textAlign="center">
                             {errorMessage}
                         </Typography>
-                        <Button variant="contained" onClick={() => setErrorMessage(null)}>Okay</Button>
+                        <Button
+                            variant="contained"
+                            onClick={() => setErrorMessage(null)}
+                        >
+                            Okay
+                        </Button>
                     </Paper>
                 </Container>
             </Modal>

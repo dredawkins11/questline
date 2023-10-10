@@ -1,5 +1,5 @@
 import { AutoAwesome } from "@mui/icons-material";
-import { Box, Button, TextField, ToggleButton, Tooltip, Typography } from "@mui/material";
+import { Box, Button, TextField, ToggleButton, Tooltip } from "@mui/material";
 import { useState, FormEventHandler } from "react";
 
 interface QuestFormProps {
