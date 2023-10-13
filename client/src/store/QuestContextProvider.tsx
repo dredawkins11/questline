@@ -13,17 +13,18 @@ interface QuestResponseBody {
 interface QuestContext {
     loading: boolean;
     quests: Quest[];
-    getChildren: (id: string) => Quest[];
+    getChildren: (id: string, onlyIds?: boolean) => Quest[];
+    getChildrenIds: (id: string) => string[]
     addQuest: (questPrompt: string, parent?: string) => void;
     editQuest: (quest: Quest, id: string) => void;
     deleteQuest: (id: string) => void;
-
 }
 
 const QuestContext = createContext<QuestContext>({
     loading: false,
     quests: [],
-    getChildren: (id: string) => [],
+    getChildren: (id: string, onlyIds?: boolean) => [],
+    getChildrenIds: (id: string) => [],
     addQuest: (questPrompt: string, parent?: string) => {},
     editQuest: (quest: Quest, id: string) => {},
     deleteQuest: (id: string) => {},
@@ -50,8 +51,8 @@ const QuestContextProvider = ({ children }: QuestContextProviderProps) => {
             completed: false,
             id: `${randomId()}`,
         };
-        const subQuests: Quest[] = []
-        if (parent) newQuest.parent = parent
+        const subQuests: Quest[] = [];
+        if (parent) newQuest.parent = parent;
 
         setLoading(true);
         try {
@@ -76,7 +77,7 @@ const QuestContextProvider = ({ children }: QuestContextProviderProps) => {
                     completed: false,
                     id: `${randomId()}`,
                 };
-                subQuests.push(subQuest)
+                subQuests.push(subQuest);
             });
         } catch (error) {
             console.log(error);
@@ -93,26 +94,41 @@ const QuestContextProvider = ({ children }: QuestContextProviderProps) => {
     const editQuest = (quest: Quest, id: string) => {
         setQuests((prevState) => {
             const quests = [...prevState];
-            const targetQuest = quests.findIndex(quest => quest.id === id)
-            quests[targetQuest] = quest
+            const targetQuest = quests.findIndex((quest) => quest.id === id);
+            quests[targetQuest] = quest;
             localStorage.setItem("quests", JSON.stringify(quests));
             return quests;
         });
     };
 
     const deleteQuest = (id: string) => {
-        setQuests((prevState) => {
-            const quests = prevState.filter((quest) => quest.id !== id);
-            localStorage.setItem("quests", JSON.stringify(quests));
-            return quests;
-        });
+        const childrenIds = getChildrenIds(id);
+        const filterIds = [id, ...childrenIds];
+        console.log(filterIds);
+        const filteredQuests = quests.filter(
+            (quest) => !filterIds.includes(quest.id)
+        );
+        localStorage.setItem("quests", JSON.stringify(filteredQuests));
+        setQuests(filteredQuests);
     };
 
-    const getChildren = (id: string) => quests.filter(quest => quest.parent === id)
+    const getChildren = (id: string, onlyIds?: boolean) =>
+        quests.filter((quest) => quest.parent === id);
+
+    const getChildrenIds = (id: string) =>
+        quests.filter((quest) => quest.parent === id).map((quest) => quest.id);
 
     return (
         <QuestContext.Provider
-            value={{ loading, quests, getChildren, addQuest, editQuest, deleteQuest }}
+            value={{
+                loading,
+                quests,
+                getChildren,
+                getChildrenIds,
+                addQuest,
+                editQuest,
+                deleteQuest,
+            }}
         >
             {children}
         </QuestContext.Provider>

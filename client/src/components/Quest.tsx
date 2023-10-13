@@ -22,12 +22,10 @@ import { QuestContext } from "../store/QuestContextProvider";
 interface QuestProps {
     quest: Quest;
     children: Quest[];
-    onEditQuest: (quest: Quest, id: string) => void;
-    onDeleteQuest: (id: string) => void;
 }
 
-const Quest = ({ quest, children, onEditQuest, onDeleteQuest }: QuestProps) => {
-    const { getChildren } = useContext(QuestContext);
+const Quest = ({ quest, children }: QuestProps) => {
+    const { getChildren, editQuest, deleteQuest } = useContext(QuestContext);
 
     const [questExpanded, setQuestExpanded] = useState(false);
     const [editing, setEditing] = useState(false);
@@ -36,12 +34,16 @@ const Quest = ({ quest, children, onEditQuest, onDeleteQuest }: QuestProps) => {
     const toggleEdit = () => {
         if (!editing) return setEditing(true);
         const editedQuest = { ...quest, text: questText };
-        onEditQuest(editedQuest, quest.id);
+        editQuest(editedQuest, quest.id);
         setEditing(false);
     };
 
+    const completeQuest = () => {
+        editQuest({...quest, completed: !quest.completed}, quest.id)
+    }
+
     const handleDeleteQuest = () => {
-        onDeleteQuest(quest.id);
+        deleteQuest(quest.id);
     };
 
     return (
@@ -77,7 +79,7 @@ const Quest = ({ quest, children, onEditQuest, onDeleteQuest }: QuestProps) => {
                             justifyContent="space-between"
                             width="100%"
                         >
-                            <Checkbox checked={quest.completed} />
+                            <Checkbox checked={quest.completed} onClick={completeQuest} />
                             {!editing ? (
                                 <Typography flexGrow={1}>
                                     {quest.text}
@@ -122,8 +124,6 @@ const Quest = ({ quest, children, onEditQuest, onDeleteQuest }: QuestProps) => {
                                 key={quest.id}
                                 quest={quest}
                                 children={getChildren(quest.id)}
-                                onEditQuest={onEditQuest}
-                                onDeleteQuest={onDeleteQuest}
                             />
                         ))}
                     </AccordionDetails>
@@ -150,7 +150,7 @@ const Quest = ({ quest, children, onEditQuest, onDeleteQuest }: QuestProps) => {
                         },
                     }}
                 >
-                    <Checkbox checked={quest.completed} />
+                    <Checkbox checked={quest.completed} onClick={completeQuest} />
                     {!editing ? (
                         <Typography flexGrow={1}>{quest.text}</Typography>
                     ) : (

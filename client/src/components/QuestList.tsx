@@ -6,7 +6,7 @@ import { QuestContext } from "../store/QuestContextProvider";
 interface QuestListProps {}
 
 const QuestList = ({}: QuestListProps) => {
-    const { loading, quests, getChildren, editQuest, deleteQuest } =
+    const { loading, quests, getChildren } =
         useContext(QuestContext);
     return (
         <Stack
@@ -23,8 +23,6 @@ const QuestList = ({}: QuestListProps) => {
                         key={quest.id}
                         quest={quest}
                         children={getChildren(quest.id)}
-                        onEditQuest={editQuest}
-                        onDeleteQuest={deleteQuest}
                     />
                 );
             })}
