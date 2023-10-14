@@ -3,9 +3,12 @@ import {
     AccordionDetails,
     AccordionSummary,
     Box,
+    Button,
     Checkbox,
     IconButton,
+    Stack,
     TextField,
+    Tooltip,
     Typography,
 } from "@mui/material";
 import { Quest } from "../types";
@@ -15,9 +18,14 @@ import {
     Edit as EditIcon,
     Check as CheckIcon,
     Delete as DeleteIcon,
+    AutoAwesome as AutoAwesomeIcon,
+    EditNote as EditNoteIcon,
+    Close as CloseIcon,
 } from "@mui/icons-material";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { QuestContext } from "../store/QuestContextProvider";
+import IconMenu from "./ui/IconMenu";
+import { generateQuests, randomId } from "../utils/generateQuests";
 
 interface QuestProps {
     quest: Quest;
@@ -25,11 +33,13 @@ interface QuestProps {
 }
 
 const Quest = ({ quest, children }: QuestProps) => {
-    const { getChildren, editQuest, deleteQuest } = useContext(QuestContext);
+    const { getChildren, editQuest, deleteQuest, addQuests } =
+        useContext(QuestContext);
 
     const [questExpanded, setQuestExpanded] = useState(false);
     const [editing, setEditing] = useState(false);
     const [questText, setQuestText] = useState(quest.text);
+    const [addingSubQuest, setAddingSubQuest] = useState<boolean>(false);
 
     const toggleEdit = () => {
         if (!editing) return setEditing(true);
@@ -38,12 +48,28 @@ const Quest = ({ quest, children }: QuestProps) => {
         setEditing(false);
     };
 
-    const completeQuest = () => {
-        editQuest({...quest, completed: !quest.completed}, quest.id)
-    }
+    const toggleAdding = () => {
+        if (editing) toggleEdit();
+        setAddingSubQuest(!addingSubQuest);
+    };
 
-    const handleDeleteQuest = () => {
-        deleteQuest(quest.id);
+    const addSubQuest = async (generate?: boolean) => {
+        if (generate) {
+            const generatedQuests = await generateQuests(quest.text, quest.id)
+            addQuests(generatedQuests);
+            return
+        }
+        const newQuest: Quest = {
+            prompt: quest.prompt,
+            text: "New quest",
+            completed: false,
+            id: randomId()
+        } 
+        addQuests(newQuest)
+    };
+
+    const completeQuest = () => {
+        editQuest({ ...quest, completed: !quest.completed }, quest.id);
     };
 
     return (
@@ -79,7 +105,10 @@ const Quest = ({ quest, children }: QuestProps) => {
                             justifyContent="space-between"
                             width="100%"
                         >
-                            <Checkbox checked={quest.completed} onClick={completeQuest} />
+                            <Checkbox
+                                checked={quest.completed}
+                                onClick={completeQuest}
+                            />
                             {!editing ? (
                                 <Typography flexGrow={1}>
                                     {quest.text}
@@ -99,23 +128,28 @@ const Quest = ({ quest, children }: QuestProps) => {
                                             marginRight: 1,
                                         }}
                                     />
-                                    <IconButton
-                                        size="small"
-                                        onClick={handleDeleteQuest}
-                                    >
-                                        <DeleteIcon
-                                            sx={{ fontSize: "1.25rem" }}
-                                        />
-                                    </IconButton>
                                 </>
                             )}
-                            <IconButton size="small" onClick={toggleEdit}>
-                                {!editing ? (
-                                    <EditIcon sx={{ fontSize: "1.25rem" }} />
+                            <IconMenu>
+                                {editing ? (
+                                    <>
+                                        <IconButton
+                                            onClick={() =>
+                                                deleteQuest(quest.id)
+                                            }
+                                        >
+                                            <DeleteIcon />
+                                        </IconButton>
+                                        <IconButton onClick={toggleEdit}>
+                                            <CheckIcon />
+                                        </IconButton>
+                                    </>
                                 ) : (
-                                    <CheckIcon sx={{ fontSize: "1.25rem" }} />
+                                    <IconButton onClick={toggleEdit}>
+                                        <EditIcon />
+                                    </IconButton>
                                 )}
-                            </IconButton>
+                            </IconMenu>
                         </Box>
                     </AccordionSummary>
                     <AccordionDetails>
@@ -134,6 +168,9 @@ const Quest = ({ quest, children }: QuestProps) => {
                     alignItems="center"
                     justifyContent="space-between"
                     sx={{
+                        backgroundColor: addingSubQuest
+                            ? "action.hover"
+                            : "background.paper",
                         position: "relative",
                         height: "3rem",
                         "&::before": {
@@ -150,40 +187,96 @@ const Quest = ({ quest, children }: QuestProps) => {
                         },
                     }}
                 >
-                    <Checkbox checked={quest.completed} onClick={completeQuest} />
+                    <Checkbox
+                        checked={quest.completed}
+                        onClick={completeQuest}
+                        sx={{
+                            visibility: addingSubQuest ? "hidden" : "visible",
+                        }}
+                    />
                     {!editing ? (
-                        <Typography flexGrow={1}>{quest.text}</Typography>
+                        <Typography
+                            flexGrow={1}
+                            fontWeight={addingSubQuest ? "bold" : "normal"}
+                            sx={{
+                                position: "relative",
+                                left: addingSubQuest ? "-5%" : 0,
+                            }}
+                        >
+                            {addingSubQuest ? "Add new sub-quest?" : quest.text}
+                        </Typography>
                     ) : (
-                        <>
-                            <TextField
-                                value={questText}
-                                onChange={(e) => setQuestText(e.target.value)}
-                                size="small"
-                                variant="standard"
-                                hiddenLabel
-                                sx={{
-                                    flexGrow: 1,
-                                    marginRight: 1,
-                                }}
-                            />
-                            <IconButton
-                                size="small"
-                                onClick={handleDeleteQuest}
-                            >
-                                <DeleteIcon sx={{ fontSize: "1.25rem" }} />
-                            </IconButton>
-                        </>
+                        <TextField
+                            value={questText}
+                            onChange={(e) => setQuestText(e.target.value)}
+                            size="small"
+                            variant="standard"
+                            hiddenLabel
+                            sx={{
+                                flexGrow: 1,
+                                marginRight: 1,
+                            }}
+                        />
                     )}
-                    <IconButton size="small" onClick={toggleEdit}>
-                        {!editing ? (
-                            <EditIcon sx={{ fontSize: "1.25rem" }} />
+                    {addingSubQuest && (
+                        <Stack flexDirection="row" gap={2} mr={2}>
+                            <Button
+                                variant="contained"
+                                startIcon={<AutoAwesomeIcon />}
+                                onClick={() => addSubQuest(true)}
+                            >
+                                <Typography variant="caption">
+                                    Generate
+                                </Typography>
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                startIcon={<EditNoteIcon />}
+                                onClick={() => addSubQuest()}
+                            >
+                                <Typography variant="caption">
+                                    Manual
+                                </Typography>
+                            </Button>
+                        </Stack>
+                    )}
+                    <IconMenu>
+                        {editing ? (
+                            <>
+                                <IconButton
+                                    onClick={() => deleteQuest(quest.id)}
+                                >
+                                    <Tooltip title="Delete Quest">
+                                        <DeleteIcon />
+                                    </Tooltip>
+                                </IconButton>
+                                <IconButton onClick={toggleEdit}>
+                                    <Tooltip title="Confirm Edit">
+                                        <CheckIcon />
+                                    </Tooltip>
+                                </IconButton>
+                            </>
+                        ) : addingSubQuest ? (
+                            <></>
                         ) : (
-                            <CheckIcon sx={{ fontSize: "1.25rem" }} />
+                            <IconButton onClick={toggleEdit}>
+                                <Tooltip title="Edit Quest">
+                                    <EditIcon />
+                                </Tooltip>
+                            </IconButton>
                         )}
-                    </IconButton>
-                    <IconButton size="small">
-                        <AddIcon />
-                    </IconButton>
+                        {addingSubQuest ? (
+                            <IconButton onClick={toggleAdding}>
+                                <Tooltip title="Cancel">
+                                    <CloseIcon />
+                                </Tooltip>
+                            </IconButton>
+                        ) : (
+                            <IconButton onClick={toggleAdding}>
+                                <AddIcon />
+                            </IconButton>
+                        )}
+                    </IconMenu>
                 </Box>
             )}
         </>

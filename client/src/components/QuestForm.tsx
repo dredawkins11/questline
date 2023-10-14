@@ -2,21 +2,30 @@ import { AutoAwesome } from "@mui/icons-material";
 import { Box, Button, TextField, ToggleButton, Tooltip } from "@mui/material";
 import { useState, FormEventHandler, useContext } from "react";
 import { QuestContext } from "../store/QuestContextProvider";
+import {generateQuests, randomId} from "../utils/generateQuests";
+import { Quest } from "../types";
+import { randomUUID } from "crypto";
 
-interface QuestFormProps {
-}
+interface QuestFormProps {}
 
-const QuestForm = ({ }: QuestFormProps) => {
-    const {addQuest} = useContext(QuestContext)
+const QuestForm = ({}: QuestFormProps) => {
+    const { addQuests } = useContext(QuestContext);
 
     const [questPrompt, setQuestPrompt] = useState<string>();
-    const [isManual, setIsManual] = useState<boolean>(true);
+    const [isGenerative, setIsGenerative] = useState<boolean>(true);
 
-    const handleQuestSubmit: FormEventHandler = (e) => {
+    const handleQuestSubmit: FormEventHandler = async (e) => {
         e.preventDefault();
-        if (questPrompt) {
-            addQuest(questPrompt);
-        }
+        if (!questPrompt) return
+        const parentQuest: Quest = {
+            prompt: questPrompt,
+            text: questPrompt,
+            completed: false,
+            id: randomId()
+        } 
+        if (!isGenerative) return addQuests(parentQuest)
+        const subQuests = await generateQuests(questPrompt, parentQuest.id)
+        addQuests([parentQuest, ...subQuests])
     };
 
     return (
@@ -32,9 +41,9 @@ const QuestForm = ({ }: QuestFormProps) => {
                 />
                 <Tooltip title="Toggle Generative AI">
                     <ToggleButton
-                        value="isManual"
-                        selected={!isManual}
-                        onChange={() => setIsManual((prev) => !prev)}
+                        value="isGenerative"
+                        selected={isGenerative}
+                        onChange={() => setIsGenerative((prev) => !prev)}
                         size="small"
                     >
                         <AutoAwesome />
@@ -44,11 +53,10 @@ const QuestForm = ({ }: QuestFormProps) => {
                     type="submit"
                     variant="contained"
                     sx={{
-                        flexGrow: 1
+                        flexGrow: 1,
                     }}
                 >
                     Submit
-                    {/* <Typography>Generative AI {isManual ? "OFF" : "ON"}</Typography> */}
                 </Button>
             </Box>
         </form>

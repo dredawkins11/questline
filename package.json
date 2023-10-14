@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/dredawkins11/questline#readme",
   "dependencies": {
+    "@mui/types": "^7.2.6",
     "dotenv": "^16.3.1"
   },
   "devDependencies": {

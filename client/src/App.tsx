@@ -15,6 +15,7 @@ import { QuestContextProvider } from "./store/QuestContextProvider";
 function App() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+
     return (
         <Container maxWidth="sm" sx={{ height: "100vh" }}>
             <Stack height="100vh" alignItems="center">
