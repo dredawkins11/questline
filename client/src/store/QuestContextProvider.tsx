@@ -9,7 +9,7 @@ interface QuestContextProviderProps {
 interface QuestContext {
     loading: boolean;
     quests: Quest[];
-    getChildren: (id: string, onlyIds?: boolean) => Quest[];
+    getChildren: (id: string) => Quest[];
     getChildrenIds: (id: string) => string[];
     addQuests: (quests: Quest | Quest[]) => void;
     editQuest: (quest: Quest, id: string) => void;
@@ -19,7 +19,7 @@ interface QuestContext {
 const QuestContext = createContext<QuestContext>({
     loading: false,
     quests: [],
-    getChildren: (id: string, onlyIds?: boolean) => [],
+    getChildren: (id: string) => [],
     getChildrenIds: (id: string) => [],
     addQuests: (quests: Quest | Quest[]) => {},
     editQuest: (quest: Quest, id: string) => {},
@@ -68,7 +68,7 @@ const QuestContextProvider = ({ children }: QuestContextProviderProps) => {
         setQuests(filteredQuests);
     };
 
-    const getChildren = (id: string, onlyIds?: boolean) =>
+    const getChildren = (id: string) =>
         quests.filter((quest) => quest.parent === id);
 
     const getChildrenIds = (id: string) =>

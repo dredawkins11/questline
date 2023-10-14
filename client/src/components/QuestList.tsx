@@ -1,7 +1,8 @@
 import { Box, Skeleton, Stack } from "@mui/material";
-import Quest from "./Quest";
+import ParentQuestItem from "./ParentQuestItem";
 import { useContext } from "react";
 import { QuestContext } from "../store/QuestContextProvider";
+import QuestItem from "./QuestItem";
 
 interface QuestListProps {}
 
@@ -18,13 +19,16 @@ const QuestList = ({}: QuestListProps) => {
         >
             {quests.map((quest) => {
                 if (quest.parent) return
-                return (
-                    <Quest
-                        key={quest.id}
-                        quest={quest}
-                        children={getChildren(quest.id)}
-                    />
-                );
+                const questChildren = getChildren(quest.id);
+                if (questChildren.length == 0) return <QuestItem key={quest.id} quest={quest} />
+                
+                    return (
+                        <ParentQuestItem
+                            key={quest.id}
+                            quest={quest}
+                            children={questChildren}
+                        />
+                    )
             })}
             {loading && (
                 <Box display="flex" alignItems="center" gap={2}>
