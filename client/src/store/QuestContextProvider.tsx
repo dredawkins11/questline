@@ -58,9 +58,9 @@ const QuestContextProvider = ({ children }: QuestContextProviderProps) => {
     };
 
     const deleteQuest = (id: string) => {
-        const childrenIds = getChildrenIds(id);
-        const filterIds = [id, ...childrenIds];
-        console.log(filterIds);
+        const descendantIds = getDescendants(id);
+
+        const filterIds = [id, ...descendantIds];
         const filteredQuests = quests.filter(
             (quest) => !filterIds.includes(quest.id)
         );
@@ -73,6 +73,20 @@ const QuestContextProvider = ({ children }: QuestContextProviderProps) => {
 
     const getChildrenIds = (id: string) =>
         quests.filter((quest) => quest.parent === id).map((quest) => quest.id);
+
+    const getDescendants = (id: string) => {
+        const descendants: string[] = []
+        const children: string[] = getChildrenIds(id)
+
+        if (!children) return descendants
+        
+        children.forEach(child => {
+            descendants.push(child)
+            getDescendants(child).forEach(descendant => descendants.push(descendant))
+        })
+
+        return descendants
+    }
 
     return (
         <QuestContext.Provider

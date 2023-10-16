@@ -3,29 +3,21 @@ import {
     AccordionDetails,
     AccordionSummary,
     Box,
-    Button,
     Checkbox,
     IconButton,
-    Stack,
     TextField,
-    Tooltip,
     Typography,
 } from "@mui/material";
 import { Quest } from "../types";
 import {
     ExpandMore as ExpandMoreIcon,
-    Add as AddIcon,
     Edit as EditIcon,
     Check as CheckIcon,
     Delete as DeleteIcon,
-    AutoAwesome as AutoAwesomeIcon,
-    EditNote as EditNoteIcon,
-    Close as CloseIcon,
 } from "@mui/icons-material";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { QuestContext } from "../store/QuestContextProvider";
 import IconMenu from "./ui/IconMenu";
-import { generateQuests, randomId } from "../utils/generateQuests";
 import QuestItem from "./QuestItem";
 
 interface QuestProps {
@@ -34,12 +26,21 @@ interface QuestProps {
 }
 
 const ParentQuestItem = ({ quest, children }: QuestProps) => {
-    const { getChildren, editQuest, deleteQuest } =
+    const { quests, getChildren, editQuest, deleteQuest } =
         useContext(QuestContext);
 
-    const [questExpanded, setQuestExpanded] = useState(false);
+    const [parentCompleted, setParentCompleted] = useState<boolean | undefined>(
+        quest.completed
+    );
+    const [questExpanded, setQuestExpanded] = useState(true);
     const [editing, setEditing] = useState(false);
     const [questText, setQuestText] = useState(quest.text);
+
+    useEffect(() => {
+        setParentCompleted(
+            (_) => quests.find((x) => x.id == quest.parent)?.completed
+        );
+    }, [quest]);
 
     const toggleEdit = () => {
         if (!editing) return setEditing(true);
@@ -49,6 +50,7 @@ const ParentQuestItem = ({ quest, children }: QuestProps) => {
     };
 
     const completeQuest = () => {
+        if (!quest.completed) setQuestExpanded(false)
         editQuest({ ...quest, completed: !quest.completed }, quest.id);
     };
 
@@ -56,7 +58,8 @@ const ParentQuestItem = ({ quest, children }: QuestProps) => {
         <Accordion
             disableGutters
             sx={{
-                background: "none",
+                background: parentCompleted || quest.completed ? "unset" : "none",
+                backgroundColor: parentCompleted || quest.completed ? "action.disabledBackground" : "",
                 boxShadow: "none",
             }}
             expanded={questExpanded}
@@ -81,12 +84,18 @@ const ParentQuestItem = ({ quest, children }: QuestProps) => {
                     justifyContent="space-between"
                     width="100%"
                 >
-                    <Checkbox
-                        checked={quest.completed}
-                        onClick={completeQuest}
-                    />
+                    <Checkbox disabled={parentCompleted} checked={parentCompleted ? parentCompleted : quest.completed} onClick={completeQuest} />
                     {!editing ? (
-                        <Typography flexGrow={1}>{quest.text}</Typography>
+                        <Typography
+                            flexGrow={1}
+                            sx={{
+                                textDecoration: parentCompleted || quest.completed
+                                    ? "line-through"
+                                    : "none",
+                            }}
+                        >
+                            {quest.text}
+                        </Typography>
                     ) : (
                         <>
                             <TextField
@@ -124,17 +133,17 @@ const ParentQuestItem = ({ quest, children }: QuestProps) => {
             </AccordionSummary>
             <AccordionDetails>
                 {children.map((quest) => {
-
-                    if (children.length == 0) return <QuestItem key={quest.id} quest={quest} />
-
                     const questChildren = getChildren(quest.id);
+                    if (questChildren.length == 0)
+                        return <QuestItem key={quest.id} quest={quest} />;
+
                     return (
                         <ParentQuestItem
                             key={quest.id}
                             quest={quest}
                             children={questChildren}
                         />
-                    )
+                    );
                 })}
             </AccordionDetails>
         </Accordion>

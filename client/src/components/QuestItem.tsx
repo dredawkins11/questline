@@ -19,7 +19,7 @@ import {
     Check as CheckIcon,
 } from "@mui/icons-material";
 import IconMenu from "./ui/IconMenu";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { QuestContext } from "../store/QuestContextProvider";
 import { generateQuests, randomId } from "../utils/generateQuests";
 
@@ -28,11 +28,21 @@ interface QuestItemProps {
 }
 
 const QuestItem = ({ quest }: QuestItemProps) => {
-    const { addQuests, editQuest, deleteQuest } = useContext(QuestContext);
+    const { quests, addQuests, editQuest, deleteQuest } =
+        useContext(QuestContext);
 
+    const [parentCompleted, setParentCompleted] = useState<boolean | undefined>(
+        quest.completed
+    );
     const [addingSubQuest, setAddingSubQuest] = useState<boolean>(false);
     const [editing, setEditing] = useState(false);
     const [questText, setQuestText] = useState(quest.text);
+
+    useEffect(() => {
+        setParentCompleted(
+            (_) => quests.find((x) => x.id == quest.parent)?.completed
+        );
+    }, [quest]);
 
     const toggleEdit = () => {
         if (!editing) return setEditing(true);
@@ -56,6 +66,7 @@ const QuestItem = ({ quest }: QuestItemProps) => {
             prompt: quest.prompt,
             text: "New quest",
             completed: false,
+            parent: quest.id,
             id: randomId(),
         };
         addQuests(newQuest);
@@ -71,9 +82,12 @@ const QuestItem = ({ quest }: QuestItemProps) => {
             alignItems="center"
             justifyContent="space-between"
             sx={{
-                backgroundColor: addingSubQuest
-                    ? "action.hover"
-                    : "background.paper",
+                backgroundColor: () => {
+                    if (parentCompleted) return "rgba(0,0,0,0)"
+                    if (quest.completed || parentCompleted) return "action.disabledBackground"
+                    if (addingSubQuest) return "action.hover" 
+                    return "background.paper"
+                },
                 position: "relative",
                 height: "3rem",
                 "&::before": {
@@ -91,7 +105,8 @@ const QuestItem = ({ quest }: QuestItemProps) => {
             }}
         >
             <Checkbox
-                checked={quest.completed}
+                disabled={parentCompleted}
+                checked={parentCompleted ? parentCompleted : quest.completed}
                 onClick={completeQuest}
                 sx={{
                     visibility: addingSubQuest ? "hidden" : "visible",
@@ -104,6 +119,9 @@ const QuestItem = ({ quest }: QuestItemProps) => {
                     sx={{
                         position: "relative",
                         left: addingSubQuest ? "-5%" : 0,
+                        textDecoration: parentCompleted
+                            ? "line-through"
+                            : "none",
                     }}
                 >
                     {addingSubQuest ? "Add new sub-quest?" : quest.text}
@@ -169,7 +187,7 @@ const QuestItem = ({ quest }: QuestItemProps) => {
                         </Tooltip>
                     </IconButton>
                 ) : (
-                    <IconButton onClick={toggleAdding}>
+                    <IconButton onClick={toggleAdding} disabled={parentCompleted}>
                         <AddIcon />
                     </IconButton>
                 )}
