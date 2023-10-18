@@ -14,7 +14,7 @@ import { QuestContextProvider } from "./store/QuestContextProvider";
 
 function App() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
+    const [loading, setLoading] = useState(false);
 
     return (
         <Container maxWidth="sm" sx={{ height: "100vh" }}>
@@ -24,8 +24,12 @@ function App() {
                 </Typography>
                 <Box width={1} maxHeight={1} overflow="hidden">
                     <QuestContextProvider>
-                        <QuestForm />
-                        <QuestList />
+                        <QuestForm
+                            setLoading={(value: boolean) => {
+                                setLoading(value);
+                            }}
+                        />
+                        <QuestList loading={loading} />
                     </QuestContextProvider>
                 </Box>
             </Stack>

@@ -3,11 +3,14 @@ import ParentQuestItem from "./ParentQuestItem";
 import { useContext } from "react";
 import { QuestContext } from "../store/QuestContextProvider";
 import QuestItem from "./QuestItem";
+import QuestSkeleton from "./QuestSkeleton";
 
-interface QuestListProps {}
+interface QuestListProps {
+    loading: boolean
+}
 
-const QuestList = ({}: QuestListProps) => {
-    const { loading, quests, getChildren } =
+const QuestList = ({loading}: QuestListProps) => {
+    const { quests, getChildren } =
         useContext(QuestContext);
     return (
         <Stack
@@ -30,19 +33,7 @@ const QuestList = ({}: QuestListProps) => {
                         />
                     )
             })}
-            {loading && (
-                <Box display="flex" alignItems="center" gap={2}>
-                    <Skeleton
-                        variant="rounded"
-                        sx={{ aspectRatio: "1/1", height: "3rem" }}
-                    />
-                    <Skeleton variant="text" sx={{ flexGrow: 10 }} />
-                    <Skeleton
-                        variant="rounded"
-                        sx={{ flexGrow: 1, height: "2rem" }}
-                    />
-                </Box>
-            )}
+            {loading && <QuestSkeleton />}
         </Stack>
     );
 };
