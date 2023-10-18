@@ -23,9 +23,10 @@ import QuestItem from "./QuestItem";
 interface QuestProps {
     quest: Quest;
     children: Quest[];
+    setErrorMessage: (value: string | null) => void;
 }
 
-const ParentQuestItem = ({ quest, children }: QuestProps) => {
+const ParentQuestItem = ({ quest, children, setErrorMessage }: QuestProps) => {
     const { quests, getChildren, editQuest, deleteQuest } =
         useContext(QuestContext);
 
@@ -34,6 +35,11 @@ const ParentQuestItem = ({ quest, children }: QuestProps) => {
     );
     const [questExpanded, setQuestExpanded] = useState(true);
     const [editing, setEditing] = useState(false);
+    const [editTimeout, setEditTimeout] = useState<
+        NodeJS.Timeout | undefined
+    >();
+    const [originalText, setOriginalText] = useState(quest.text);
+    const [error, setError] = useState(false);
     const [questText, setQuestText] = useState(quest.text);
 
     useEffect(() => {
@@ -43,23 +49,54 @@ const ParentQuestItem = ({ quest, children }: QuestProps) => {
     }, [quest]);
 
     const toggleEdit = () => {
-        if (!editing) return setEditing(true);
+        if (!editing) {
+            startEditTimer(5000)
+            setOriginalText(questText);
+            setEditing(true);
+            return;
+        }
+        if (questText.trim() == "") {
+            setQuestText(originalText);
+            setError(true);
+            return;
+        }
+        clearTimeout(editTimeout)
         const editedQuest = { ...quest, text: questText };
         editQuest(editedQuest, quest.id);
         setEditing(false);
     };
 
+    const startEditTimer = (time: number) => {
+        const timeout = setTimeout(() => {
+            setQuestText(originalText);
+            setError(false);
+            setEditing(false);
+        }, time);
+        setEditTimeout(timeout);
+    };
+
     const completeQuest = () => {
-        if (!quest.completed) setQuestExpanded(false)
+        if (!quest.completed) setQuestExpanded(false);
         editQuest({ ...quest, completed: !quest.completed }, quest.id);
+    };
+
+    const onInputChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+        const value = e.target.value;
+        setQuestText(value);
+        if (value.trim() == "") return setError(true);
+        setError(false);
     };
 
     return (
         <Accordion
             disableGutters
             sx={{
-                background: parentCompleted || quest.completed ? "unset" : "none",
-                backgroundColor: parentCompleted || quest.completed ? "action.disabledBackground" : "",
+                background:
+                    parentCompleted || quest.completed ? "unset" : "none",
+                backgroundColor:
+                    parentCompleted || quest.completed
+                        ? "action.disabledBackground"
+                        : "",
                 boxShadow: "none",
             }}
             expanded={questExpanded}
@@ -84,14 +121,21 @@ const ParentQuestItem = ({ quest, children }: QuestProps) => {
                     justifyContent="space-between"
                     width="100%"
                 >
-                    <Checkbox disabled={parentCompleted} checked={parentCompleted ? parentCompleted : quest.completed} onClick={completeQuest} />
+                    <Checkbox
+                        disabled={parentCompleted}
+                        checked={
+                            parentCompleted ? parentCompleted : quest.completed
+                        }
+                        onClick={completeQuest}
+                    />
                     {!editing ? (
                         <Typography
                             flexGrow={1}
                             sx={{
-                                textDecoration: parentCompleted || quest.completed
-                                    ? "line-through"
-                                    : "none",
+                                textDecoration:
+                                    parentCompleted || quest.completed
+                                        ? "line-through"
+                                        : "none",
                             }}
                         >
                             {quest.text}
@@ -99,8 +143,11 @@ const ParentQuestItem = ({ quest, children }: QuestProps) => {
                     ) : (
                         <>
                             <TextField
+                                onBlur={() => startEditTimer(300)}
+                                onFocus={() => clearTimeout(editTimeout)}
                                 value={questText}
-                                onChange={(e) => setQuestText(e.target.value)}
+                                error={error}
+                                onChange={onInputChange}
                                 size="small"
                                 variant="standard"
                                 hiddenLabel
@@ -135,13 +182,20 @@ const ParentQuestItem = ({ quest, children }: QuestProps) => {
                 {children.map((quest) => {
                     const questChildren = getChildren(quest.id);
                     if (questChildren.length == 0)
-                        return <QuestItem key={quest.id} quest={quest} />;
+                        return (
+                            <QuestItem
+                                key={quest.id}
+                                quest={quest}
+                                setErrorMessage={setErrorMessage}
+                            />
+                        );
 
                     return (
                         <ParentQuestItem
                             key={quest.id}
                             quest={quest}
                             children={questChildren}
+                            setErrorMessage={setErrorMessage}
                         />
                     );
                 })}

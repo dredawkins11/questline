@@ -14,11 +14,12 @@ const QuestForm = ({ setLoading, setErrorMessage }: QuestFormProps) => {
     const { addQuests } = useContext(QuestContext);
 
     const [questPrompt, setQuestPrompt] = useState<string>();
+    const [error, setError] = useState(false)
     const [isGenerative, setIsGenerative] = useState<boolean>(true);
 
     const handleQuestSubmit: FormEventHandler = async (e) => {
         e.preventDefault();
-        if (!questPrompt) return;
+        if (!questPrompt) return setError(true);
         const parentQuest: Quest = {
             prompt: questPrompt,
             text: questPrompt,
@@ -40,11 +41,20 @@ const QuestForm = ({ setLoading, setErrorMessage }: QuestFormProps) => {
         addQuests([parentQuest, ...generatedQuests]);
     };
 
+    const onInputChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+        const value = e.target.value
+        setQuestPrompt(value)
+        if (value.trim() == "") return setError(true) 
+        setError(false)
+    }
+
     return (
         <form onSubmit={handleQuestSubmit} style={{ width: "100%" }}>
             <Box width="100%" display="flex" alignItems="center" gap={1}>
                 <TextField
-                    onChange={(e) => setQuestPrompt(e.target.value)}
+                    onChange={onInputChange}
+                    onBlur={() => setError(false)}
+                    error={error}
                     placeholder="What do you need to do?"
                     size="small"
                     sx={{

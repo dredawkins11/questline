@@ -7,7 +7,7 @@ import QuestSkeleton from "./QuestSkeleton";
 
 interface QuestListProps {
     loading: boolean;
-    setErrorMessage: (value: string) => void;
+    setErrorMessage: (value: string | null) => void;
 }
 
 const QuestList = ({ loading, setErrorMessage }: QuestListProps) => {
@@ -31,6 +31,7 @@ const QuestList = ({ loading, setErrorMessage }: QuestListProps) => {
                         key={quest.id}
                         quest={quest}
                         children={questChildren}
+                        setErrorMessage={setErrorMessage}
                     />
                 );
             })}

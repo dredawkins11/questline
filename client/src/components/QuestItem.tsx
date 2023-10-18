@@ -26,7 +26,7 @@ import QuestSkeleton from "./QuestSkeleton";
 
 interface QuestItemProps {
     quest: Quest;
-    setErrorMessage: (value: string) => void;
+    setErrorMessage: (value: string | null) => void;
 }
 
 const QuestItem = ({ quest, setErrorMessage }: QuestItemProps) => {
@@ -38,7 +38,12 @@ const QuestItem = ({ quest, setErrorMessage }: QuestItemProps) => {
     );
     const [addingSubQuest, setAddingSubQuest] = useState<boolean>(false);
     const [questText, setQuestText] = useState(quest.text);
+    const [originalText, setOriginalText] = useState(quest.text);
+    const [editTimeout, setEditTimeout] = useState<
+        NodeJS.Timeout | undefined
+    >();
     const [editing, setEditing] = useState(false);
+    const [error, setError] = useState(false);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -48,7 +53,18 @@ const QuestItem = ({ quest, setErrorMessage }: QuestItemProps) => {
     }, [quest]);
 
     const toggleEdit = () => {
-        if (!editing) return setEditing(true);
+        if (!editing) {
+            startEditTimer(5000);
+            setOriginalText(questText);
+            setEditing(true);
+            return;
+        }
+        if (questText.trim() == "") {
+            setQuestText(originalText);
+            setError(true);
+            return;
+        }
+        clearTimeout(editTimeout)
         const editedQuest = { ...quest, text: questText };
         editQuest(editedQuest, quest.id);
         setEditing(false);
@@ -62,7 +78,10 @@ const QuestItem = ({ quest, setErrorMessage }: QuestItemProps) => {
     const addSubQuest = async (generate?: boolean) => {
         if (generate) {
             setLoading(true);
-            const {generatedQuests, error} = await generateQuests(quest.text, quest.id);
+            const { generatedQuests, error } = await generateQuests(
+                quest.text,
+                quest.id
+            );
             if (error || !generatedQuests) {
                 setLoading(false);
                 setErrorMessage("Prompt Not Understood");
@@ -84,6 +103,22 @@ const QuestItem = ({ quest, setErrorMessage }: QuestItemProps) => {
 
     const completeQuest = () => {
         editQuest({ ...quest, completed: !quest.completed }, quest.id);
+    };
+
+    const onInputChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+        const value = e.target.value;
+        setQuestText(value);
+        if (value.trim() == "") return setError(true);
+        setError(false);
+    };
+
+    const startEditTimer = (time: number) => {
+        const timeout = setTimeout(() => {
+            setQuestText(originalText);
+            setError(false);
+            setEditing(false);
+        }, time);
+        setEditTimeout(timeout);
     };
 
     return (
@@ -142,8 +177,11 @@ const QuestItem = ({ quest, setErrorMessage }: QuestItemProps) => {
                     </Typography>
                 ) : (
                     <TextField
+                        onBlur={() => startEditTimer(100)}
+                        onFocus={() => clearTimeout(editTimeout)}
                         value={questText}
-                        onChange={(e) => setQuestText(e.target.value)}
+                        error={error}
+                        onChange={onInputChange}
                         size="small"
                         variant="standard"
                         hiddenLabel
