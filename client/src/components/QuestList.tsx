@@ -1,4 +1,4 @@
-import { Box, Skeleton, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import ParentQuestItem from "./ParentQuestItem";
 import { useContext } from "react";
 import { QuestContext } from "../store/QuestContextProvider";
@@ -6,12 +6,12 @@ import QuestItem from "./QuestItem";
 import QuestSkeleton from "./QuestSkeleton";
 
 interface QuestListProps {
-    loading: boolean
+    loading: boolean;
+    setErrorMessage: (value: string) => void;
 }
 
-const QuestList = ({loading}: QuestListProps) => {
-    const { quests, getChildren } =
-        useContext(QuestContext);
+const QuestList = ({ loading, setErrorMessage }: QuestListProps) => {
+    const { quests, getChildren } = useContext(QuestContext);
     return (
         <Stack
             width={1}
@@ -21,17 +21,18 @@ const QuestList = ({loading}: QuestListProps) => {
             padding={1}
         >
             {quests.map((quest) => {
-                if (quest.parent) return
+                if (quest.parent) return;
                 const questChildren = getChildren(quest.id);
-                if (questChildren.length == 0) return <QuestItem key={quest.id} quest={quest} />
-                
-                    return (
-                        <ParentQuestItem
-                            key={quest.id}
-                            quest={quest}
-                            children={questChildren}
-                        />
-                    )
+                if (questChildren.length == 0)
+                    return <QuestItem setErrorMessage={setErrorMessage} key={quest.id} quest={quest} />;
+
+                return (
+                    <ParentQuestItem
+                        key={quest.id}
+                        quest={quest}
+                        children={questChildren}
+                    />
+                );
             })}
             {loading && <QuestSkeleton />}
         </Stack>

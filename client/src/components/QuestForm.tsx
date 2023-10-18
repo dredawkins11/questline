@@ -2,14 +2,15 @@ import { AutoAwesome } from "@mui/icons-material";
 import { Box, Button, TextField, ToggleButton, Tooltip } from "@mui/material";
 import { useState, FormEventHandler, useContext } from "react";
 import { QuestContext } from "../store/QuestContextProvider";
-import {generateQuests, randomId} from "../utils/generateQuests";
+import { generateQuests, randomId } from "../utils/generateQuests";
 import { Quest } from "../types";
 
 interface QuestFormProps {
-    setLoading: (value: boolean) => void
+    setLoading: (value: boolean) => void;
+    setErrorMessage: (value: string) => void;
 }
 
-const QuestForm = ({setLoading}: QuestFormProps) => {
+const QuestForm = ({ setLoading, setErrorMessage }: QuestFormProps) => {
     const { addQuests } = useContext(QuestContext);
 
     const [questPrompt, setQuestPrompt] = useState<string>();
@@ -17,18 +18,26 @@ const QuestForm = ({setLoading}: QuestFormProps) => {
 
     const handleQuestSubmit: FormEventHandler = async (e) => {
         e.preventDefault();
-        if (!questPrompt) return
+        if (!questPrompt) return;
         const parentQuest: Quest = {
             prompt: questPrompt,
             text: questPrompt,
             completed: false,
-            id: randomId()
-        } 
-        if (!isGenerative) return addQuests(parentQuest)
-        setLoading(true)
-        const subQuests = await generateQuests(questPrompt, parentQuest.id)
-        setLoading(false)
-        addQuests([parentQuest, ...subQuests])
+            id: randomId(),
+        };
+        if (!isGenerative) return addQuests(parentQuest);
+        setLoading(true);
+        const { generatedQuests, error } = await generateQuests(
+            questPrompt,
+            parentQuest.id
+        );
+        if (error || !generatedQuests) {
+            setLoading(false);
+            setErrorMessage("Prompt Not Understood");
+            return;
+        }
+        setLoading(false);
+        addQuests([parentQuest, ...generatedQuests]);
     };
 
     return (

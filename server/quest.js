@@ -30,8 +30,7 @@ const promptFunc = async (input, stepAmount) => {
 
 export const newQuest = async (prompt, stepAmount) => {
     const rawResponse = await promptFunc(prompt, stepAmount);
-    console.log("raw", rawResponse);
-    if (!rawResponse) throw new Error("Prompt not understood");
+    if (!Array.isArray(rawResponse.steps)) throw new Error("Prompt not understood");
 
     const questObject = { task: rawResponse.task, steps: [] };
 

@@ -3,7 +3,6 @@ import {
     Button,
     Checkbox,
     IconButton,
-    Skeleton,
     Stack,
     TextField,
     Tooltip,
@@ -27,9 +26,10 @@ import QuestSkeleton from "./QuestSkeleton";
 
 interface QuestItemProps {
     quest: Quest;
+    setErrorMessage: (value: string) => void;
 }
 
-const QuestItem = ({ quest }: QuestItemProps) => {
+const QuestItem = ({ quest, setErrorMessage }: QuestItemProps) => {
     const { quests, addQuests, editQuest, deleteQuest } =
         useContext(QuestContext);
 
@@ -39,7 +39,7 @@ const QuestItem = ({ quest }: QuestItemProps) => {
     const [addingSubQuest, setAddingSubQuest] = useState<boolean>(false);
     const [questText, setQuestText] = useState(quest.text);
     const [editing, setEditing] = useState(false);
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         setParentCompleted(
@@ -61,9 +61,14 @@ const QuestItem = ({ quest }: QuestItemProps) => {
 
     const addSubQuest = async (generate?: boolean) => {
         if (generate) {
-            setLoading(true)
-            const generatedQuests = await generateQuests(quest.text, quest.id);
-            setLoading(false)
+            setLoading(true);
+            const {generatedQuests, error} = await generateQuests(quest.text, quest.id);
+            if (error || !generatedQuests) {
+                setLoading(false);
+                setErrorMessage("Prompt Not Understood");
+                return;
+            }
+            setLoading(false);
             addQuests(generatedQuests);
             return;
         }
@@ -205,7 +210,7 @@ const QuestItem = ({ quest }: QuestItemProps) => {
                     )}
                 </IconMenu>
             </Box>
-            {loading && <QuestSkeleton/>}
+            {loading && <QuestSkeleton />}
         </>
     );
 };

@@ -32,8 +32,9 @@ export const generateQuests = async (prompt: string, parent: string, amount: num
         });
     } catch (error) {
         console.log(error);
+        return {error}
     }
-    return generatedQuests;
+    return {generatedQuests};
 };
 
 
