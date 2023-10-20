@@ -145,6 +145,7 @@ const QuestItem = ({ quest, setErrorMessage }: QuestItemProps) => {
                         height: "1px",
                         content: '""',
                         opacity: 1,
+                        userSelect: "text",
                         backgroundColor: "rgba(255, 255, 255, 0.12)",
                         transition:
                             "opacity 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",

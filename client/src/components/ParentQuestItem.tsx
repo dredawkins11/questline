@@ -120,6 +120,7 @@ const ParentQuestItem = ({ quest, children, setErrorMessage }: QuestProps) => {
                     alignItems="center"
                     justifyContent="space-between"
                     width="100%"
+                    sx={{userSelect: "text",}}
                 >
                     <Checkbox
                         disabled={parentCompleted}
@@ -136,6 +137,7 @@ const ParentQuestItem = ({ quest, children, setErrorMessage }: QuestProps) => {
                                     parentCompleted || quest.completed
                                         ? "line-through"
                                         : "none",
+                                "&:hover": {cursor: "text"}
                             }}
                         >
                             {quest.text}
