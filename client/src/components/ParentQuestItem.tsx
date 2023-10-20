@@ -23,10 +23,9 @@ import QuestItem from "./QuestItem";
 interface QuestProps {
     quest: Quest;
     children: Quest[];
-    setErrorMessage: (value: string | null) => void;
 }
 
-const ParentQuestItem = ({ quest, children, setErrorMessage }: QuestProps) => {
+const ParentQuestItem = ({ quest, children }: QuestProps) => {
     const { quests, getChildren, editQuest, deleteQuest } =
         useContext(QuestContext);
 
@@ -39,7 +38,7 @@ const ParentQuestItem = ({ quest, children, setErrorMessage }: QuestProps) => {
         NodeJS.Timeout | undefined
     >();
     const [originalText, setOriginalText] = useState(quest.text);
-    const [error, setError] = useState(false);
+    const [inputError, setInputError] = useState(false);
     const [questText, setQuestText] = useState(quest.text);
 
     useEffect(() => {
@@ -50,17 +49,17 @@ const ParentQuestItem = ({ quest, children, setErrorMessage }: QuestProps) => {
 
     const toggleEdit = () => {
         if (!editing) {
-            startEditTimer(5000)
+            startEditTimer(5000);
             setOriginalText(questText);
             setEditing(true);
             return;
         }
         if (questText.trim() == "") {
             setQuestText(originalText);
-            setError(true);
+            setInputError(true);
             return;
         }
-        clearTimeout(editTimeout)
+        clearTimeout(editTimeout);
         const editedQuest = { ...quest, text: questText };
         editQuest(editedQuest, quest.id);
         setEditing(false);
@@ -69,7 +68,7 @@ const ParentQuestItem = ({ quest, children, setErrorMessage }: QuestProps) => {
     const startEditTimer = (time: number) => {
         const timeout = setTimeout(() => {
             setQuestText(originalText);
-            setError(false);
+            setInputError(false);
             setEditing(false);
         }, time);
         setEditTimeout(timeout);
@@ -83,8 +82,8 @@ const ParentQuestItem = ({ quest, children, setErrorMessage }: QuestProps) => {
     const onInputChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
         const value = e.target.value;
         setQuestText(value);
-        if (value.trim() == "") return setError(true);
-        setError(false);
+        if (value.trim() == "") return setInputError(true);
+        setInputError(false);
     };
 
     return (
@@ -120,7 +119,7 @@ const ParentQuestItem = ({ quest, children, setErrorMessage }: QuestProps) => {
                     alignItems="center"
                     justifyContent="space-between"
                     width="100%"
-                    sx={{userSelect: "text",}}
+                    sx={{ userSelect: "text" }}
                 >
                     <Checkbox
                         disabled={parentCompleted}
@@ -137,7 +136,7 @@ const ParentQuestItem = ({ quest, children, setErrorMessage }: QuestProps) => {
                                     parentCompleted || quest.completed
                                         ? "line-through"
                                         : "none",
-                                "&:hover": {cursor: "text"}
+                                "&:hover": { cursor: "text" },
                             }}
                         >
                             {quest.text}
@@ -148,7 +147,7 @@ const ParentQuestItem = ({ quest, children, setErrorMessage }: QuestProps) => {
                                 onBlur={() => startEditTimer(300)}
                                 onFocus={() => clearTimeout(editTimeout)}
                                 value={questText}
-                                error={error}
+                                error={inputError}
                                 onChange={onInputChange}
                                 size="small"
                                 variant="standard"
@@ -184,20 +183,13 @@ const ParentQuestItem = ({ quest, children, setErrorMessage }: QuestProps) => {
                 {children.map((quest) => {
                     const questChildren = getChildren(quest.id);
                     if (questChildren.length == 0)
-                        return (
-                            <QuestItem
-                                key={quest.id}
-                                quest={quest}
-                                setErrorMessage={setErrorMessage}
-                            />
-                        );
+                        return <QuestItem key={quest.id} quest={quest} />;
 
                     return (
                         <ParentQuestItem
                             key={quest.id}
                             quest={quest}
                             children={questChildren}
-                            setErrorMessage={setErrorMessage}
                         />
                     );
                 })}

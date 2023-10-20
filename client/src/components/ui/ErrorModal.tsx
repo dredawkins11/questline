@@ -1,20 +1,17 @@
 import { Button, Container, Modal, Paper, Typography } from "@mui/material"
+import { useContext } from "react";
+import { AppContext } from "../../store/AppContextProvider";
 
 interface ErrorModalProps {
-    errorMessage: string;
-    setErrorMessage: (value: string | null) => void
 }
 
-const ErrorModal = ({errorMessage, setErrorMessage}: ErrorModalProps) =>{
-    const getDescription = () => {
-        switch (errorMessage) {
-            case "Prompt Not Understood":
-                return "This prompt couldn't be understood. Please try to be more specific in order to achieve better results."
-        }
-    }
+const ErrorModal = ({}: ErrorModalProps) =>{
+
+    const {error, setError} = useContext(AppContext)
+
 
     return (
-        <Modal open={errorMessage != null}>
+        <Modal open={error != null}>
                 <Container
                     maxWidth="sm"
                     sx={{
@@ -35,14 +32,14 @@ const ErrorModal = ({errorMessage, setErrorMessage}: ErrorModalProps) =>{
                         }}
                     >
                         <Typography variant="h5" textAlign="center" fontWeight="bold">
-                            {errorMessage}
+                            {error?.name}
                         </Typography>
                         <Typography variant="body2" textAlign="center" mb={3}>
-                            {getDescription()}
+                            {error?.message}
                         </Typography>
                         <Button
                             variant="contained"
-                            onClick={() => setErrorMessage(null)}
+                            onClick={() => setError(null)}
                         >
                             Okay
                         </Button>

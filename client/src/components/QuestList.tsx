@@ -7,10 +7,9 @@ import QuestSkeleton from "./QuestSkeleton";
 
 interface QuestListProps {
     loading: boolean;
-    setErrorMessage: (value: string | null) => void;
 }
 
-const QuestList = ({ loading, setErrorMessage }: QuestListProps) => {
+const QuestList = ({ loading }: QuestListProps) => {
     const { quests, getChildren } = useContext(QuestContext);
     return (
         <Stack
@@ -24,14 +23,13 @@ const QuestList = ({ loading, setErrorMessage }: QuestListProps) => {
                 if (quest.parent) return;
                 const questChildren = getChildren(quest.id);
                 if (questChildren.length == 0)
-                    return <QuestItem setErrorMessage={setErrorMessage} key={quest.id} quest={quest} />;
+                    return <QuestItem key={quest.id} quest={quest} />;
 
                 return (
                     <ParentQuestItem
                         key={quest.id}
                         quest={quest}
                         children={questChildren}
-                        setErrorMessage={setErrorMessage}
                     />
                 );
             })}

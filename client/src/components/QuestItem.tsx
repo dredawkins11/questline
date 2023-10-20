@@ -23,15 +23,17 @@ import { useContext, useEffect, useState } from "react";
 import { QuestContext } from "../store/QuestContextProvider";
 import { generateQuests, randomId } from "../utils/generateQuests";
 import QuestSkeleton from "./QuestSkeleton";
+import { AppContext } from "../store/AppContextProvider";
+import PromptError from "../utils/PromptError";
 
 interface QuestItemProps {
     quest: Quest;
-    setErrorMessage: (value: string | null) => void;
 }
 
-const QuestItem = ({ quest, setErrorMessage }: QuestItemProps) => {
+const QuestItem = ({ quest }: QuestItemProps) => {
     const { quests, addQuests, editQuest, deleteQuest } =
         useContext(QuestContext);
+    const { setError } = useContext(AppContext);
 
     const [parentCompleted, setParentCompleted] = useState<boolean | undefined>(
         quest.completed
@@ -43,7 +45,7 @@ const QuestItem = ({ quest, setErrorMessage }: QuestItemProps) => {
         NodeJS.Timeout | undefined
     >();
     const [editing, setEditing] = useState(false);
-    const [error, setError] = useState(false);
+    const [inputError, setInputError] = useState(false);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -61,10 +63,10 @@ const QuestItem = ({ quest, setErrorMessage }: QuestItemProps) => {
         }
         if (questText.trim() == "") {
             setQuestText(originalText);
-            setError(true);
+            setInputError(true);
             return;
         }
-        clearTimeout(editTimeout)
+        clearTimeout(editTimeout);
         const editedQuest = { ...quest, text: questText };
         editQuest(editedQuest, quest.id);
         setEditing(false);
@@ -84,7 +86,7 @@ const QuestItem = ({ quest, setErrorMessage }: QuestItemProps) => {
             );
             if (error || !generatedQuests) {
                 setLoading(false);
-                setErrorMessage("Prompt Not Understood");
+                setError(new PromptError());
                 return;
             }
             setLoading(false);
@@ -108,14 +110,14 @@ const QuestItem = ({ quest, setErrorMessage }: QuestItemProps) => {
     const onInputChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
         const value = e.target.value;
         setQuestText(value);
-        if (value.trim() == "") return setError(true);
-        setError(false);
+        if (value.trim() == "") return setInputError(true);
+        setInputError(false);
     };
 
     const startEditTimer = (time: number) => {
         const timeout = setTimeout(() => {
             setQuestText(originalText);
-            setError(false);
+            setInputError(false);
             setEditing(false);
         }, time);
         setEditTimeout(timeout);
@@ -181,7 +183,7 @@ const QuestItem = ({ quest, setErrorMessage }: QuestItemProps) => {
                         onBlur={() => startEditTimer(100)}
                         onFocus={() => clearTimeout(editTimeout)}
                         value={questText}
-                        error={error}
+                        error={inputError}
                         onChange={onInputChange}
                         size="small"
                         variant="standard"
