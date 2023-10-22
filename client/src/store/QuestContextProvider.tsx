@@ -14,6 +14,7 @@ interface QuestContext {
     addQuests: (quests: Quest | Quest[]) => void;
     editQuest: (quest: Quest, id: string) => void;
     deleteQuest: (id: string) => void;
+    clearQuests: () => void
 }
 
 const QuestContext = createContext<QuestContext>({
@@ -24,6 +25,7 @@ const QuestContext = createContext<QuestContext>({
     addQuests: (quests: Quest | Quest[]) => {},
     editQuest: (quest: Quest, id: string) => {},
     deleteQuest: (id: string) => {},
+    clearQuests: () => {}
 });
 
 const QuestContextProvider = ({ children }: QuestContextProviderProps) => {
@@ -32,7 +34,7 @@ const QuestContextProvider = ({ children }: QuestContextProviderProps) => {
 
     const storedQuests: string | null = localStorage.getItem("quests");
     useEffect(() => {
-        if (storedQuests == null) return;
+        if (storedQuests == null || storedQuests == "") return;
         setQuests(JSON.parse(storedQuests));
     }, [storedQuests]);
 
@@ -46,6 +48,11 @@ const QuestContextProvider = ({ children }: QuestContextProviderProps) => {
             return quests;
         });
     };
+
+    const clearQuests = () => {
+        localStorage.setItem("quests", "")
+        setQuests([])
+    }
 
     const editQuest = (quest: Quest, id: string) => {
         setQuests((prevState) => {
@@ -98,6 +105,7 @@ const QuestContextProvider = ({ children }: QuestContextProviderProps) => {
                 addQuests,
                 editQuest,
                 deleteQuest,
+                clearQuests
             }}
         >
             {children}

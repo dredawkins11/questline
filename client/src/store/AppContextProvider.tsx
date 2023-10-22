@@ -5,8 +5,8 @@ interface AppContextProviderProps {
 }
 
 interface AppContext {
-    theme: string;
-    setTheme: (value: string) => void;
+    darkMode: boolean;
+    setDarkMode: (value: boolean) => void;
     stepAmount: number;
     setStepAmount: (value: number) => void;
     error: Error | null;
@@ -14,8 +14,8 @@ interface AppContext {
 }
 
 const AppContext = createContext<AppContext>({
-    theme: "dark",
-    setTheme: (value: string) => {},
+    darkMode: true,
+    setDarkMode: (value: boolean) => {},
     stepAmount: 5,
     setStepAmount: (value: number) => {},
     error: null,
@@ -23,13 +23,13 @@ const AppContext = createContext<AppContext>({
 });
 
 const AppContextProvider = ({ children }: AppContextProviderProps) => {
-    const [theme, setTheme] = useState("dark");
+    const [darkMode, setDarkMode] = useState(true);
     const [stepAmount, setStepAmount] = useState(5);
     const [error, setError] = useState<Error | null>(null);
 
     const contextValue = {
-        theme: theme,
-        setTheme: (value: string) => setTheme(value),
+        darkMode: darkMode,
+        setDarkMode: (value: boolean) => setDarkMode(value),
         stepAmount: stepAmount,
         setStepAmount: (value: number) => setStepAmount(value),
         error: error,
