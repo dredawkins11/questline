@@ -1,13 +1,18 @@
-import { OpenAI } from "langchain/llms/openai";
+import { OpenAI, OpenAIInput } from "langchain/llms/openai";
 import { PromptTemplate } from "langchain/prompts";
 
-const model = new OpenAI({
-    openAiKey: process.env.OPENAI_API_KEY,
-    temperature: 0,
-    model: "gpt-3.5-turbo",
-});
+const openAiKey =process.env.OPENAI_API_KEY
+if (openAiKey == undefined) throw new Error("No API Key")
 
-const promptFunc = async (input, stepAmount) => {
+const openAIInput: Partial<OpenAIInput> = {
+    openAIApiKey: openAiKey,
+    temperature: 0,
+    modelName: "gpt-3.5-turbo"
+}
+
+const model = new OpenAI(openAIInput);
+
+const promptFunc = async (input: string, stepAmount: number) => {
     const prompt = new PromptTemplate({
         template:
             "You are an assistant that will help me break down a task into discrete steps I can take to accomplish it. You will break down the task into {stepAmount} short, simple, sub-tasks that are easier to complete. These sub-tasks should be no longer than 20 words long. The list of sub-tasks should not contain any pronouns. The sentences do not need to be grammatically correct. If you do not understand the task, or cannot provide reasonably specific steps, reply with: 'error'. Here is the task:\n{question}",
@@ -17,10 +22,10 @@ const promptFunc = async (input, stepAmount) => {
     try {
         const promptInput = await prompt.format({
             question: input,
-            stepAmount: stepAmount
+            stepAmount: stepAmount,
         });
         const res = await model.call(promptInput);
-        if (res == "Not understood.") return false
+        if (res == "Not understood.") return false;
         return { task: input, steps: res };
     } catch (error) {
         console.log(error);
@@ -30,9 +35,12 @@ const promptFunc = async (input, stepAmount) => {
 
 export const newQuest = async (prompt, stepAmount) => {
     const rawResponse = await promptFunc(prompt, stepAmount);
-    console.log(rawResponse)
-    const questObject = { task: rawResponse.task, steps: [] };
-    
+    console.log(rawResponse);
+    const questObject: { task: string; steps: string[] } = {
+        task: rawResponse.task,
+        steps: [],
+    };
+
     const splitSteps = rawResponse.steps.trim().split("\n");
     splitSteps.forEach((step) => {
         if (step == "") return;

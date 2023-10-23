@@ -16,6 +16,7 @@
         "langchain": "^0.0.152"
     },
     "devDependencies": {
+        "@types/express": "^4.17.20",
         "dotenv": "^16.0.3",
         "nodemon": "^2.0.22"
     },
