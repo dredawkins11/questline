@@ -22,15 +22,18 @@ const MIN_STEPS = 1;
 const SettingsMenu = ({ onCloseSettings }: SettingsMenuProps) => {
     const { darkMode, setDarkMode, stepAmount, setStepAmount } =
         useContext(AppContext);
-    const { clearQuests } = useContext(QuestContext)
+    const { clearQuests } = useContext(QuestContext);
 
-    const [numberInput, setNumberInput] = useState<string>(stepAmount.toString());
+    const [numberInput, setNumberInput] = useState<string>(
+        stepAmount.toString()
+    );
     const [editTimeout, setEditTimeout] = useState<null | NodeJS.Timeout>(null);
+    const [confirming, setConfirming] = useState(false);
 
     const onStepsInputChange: React.ChangeEventHandler<HTMLInputElement> = (
         e
     ) => {
-        if (e.target.value == "") setNumberInput("")
+        if (e.target.value == "") setNumberInput("");
         let value = parseInt(e.target.value);
         if (Number.isNaN(value)) return;
         if (value > MAX_STEPS) value = MAX_STEPS;
@@ -47,11 +50,11 @@ const SettingsMenu = ({ onCloseSettings }: SettingsMenuProps) => {
     };
 
     const onStepsInputBlur: React.FocusEventHandler<HTMLInputElement> = (e) => {
-        if (e.target.value != "") return
+        if (e.target.value != "") return;
         setNumberInput(MIN_STEPS.toString());
-    }
+    };
 
-    const handleCloseSettings= () => {
+    const handleCloseSettings = () => {
         setStepAmount(parseInt(numberInput));
         onCloseSettings();
     };
@@ -112,11 +115,43 @@ const SettingsMenu = ({ onCloseSettings }: SettingsMenuProps) => {
                         <Typography variant="h6" fontWeight="bold">
                             Dark mode
                         </Typography>
-                        <Switch checked={darkMode} onChange={(e) => setDarkMode(e.target.checked)}/>
+                        <Switch
+                            checked={darkMode}
+                            onChange={(e) => setDarkMode(e.target.checked)}
+                        />
                     </Box>
-                    <Button variant="contained" color="error" onClick={clearQuests}>
-                        Delete ALL Quests
-                    </Button>
+
+                    {confirming ? (
+                        <Box display="flex" justifyContent="space-between" gap={2}>
+                            <Button
+                                variant="outlined"
+                                color="error"
+                                sx={{flex: 1}}
+                                onClick={() => {
+                                    clearQuests();
+                                    setConfirming(false);
+                                }}
+                            >
+                                Confirm
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="error"
+                                sx={{flex: 1}}
+                                onClick={() => setConfirming(false)}
+                            >
+                                Cancel
+                            </Button>
+                        </Box>
+                    ) : (
+                        <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => setConfirming(true)}
+                        >
+                            Delete ALL Quests
+                        </Button>
+                    )}
                     <Button variant="contained" onClick={handleCloseSettings}>
                         Close
                     </Button>
