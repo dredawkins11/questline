@@ -21,7 +21,7 @@ const IconMenu = ({ children }: IconMenuProps) => {
     }
 
     return (
-        <Stack flexDirection="row">
+        <Stack flexDirection="row" >
             {children && children.map((child, i) =>
                 cloneElement(child, {...childProps, key: i})
             )}

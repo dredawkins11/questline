@@ -1,17 +1,21 @@
 import { Box, Container, IconButton, Stack, Typography } from "@mui/material";
 import QuestList from "./components/QuestList";
 import QuestForm from "./components/QuestForm";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { QuestContextProvider } from "./store/QuestContextProvider";
 import ErrorModal from "./components/ui/ErrorModal";
-import { AppContext } from "./store/AppContextProvider";
 import SettingsMenu from "./components/SettingsMenu";
-import { Settings } from "@mui/icons-material";
+import {
+    Info as InfoIcon,
+    Settings as SettingsIcon,
+} from "@mui/icons-material";
+import AboutModal from "./components/AboutModal";
+import IconMenu from "./components/ui/IconMenu";
 
 function App() {
-    const { error } = useContext(AppContext);
     const [loading, setLoading] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [aboutOpen, setAboutOpen] = useState(false);
 
     return (
         <Container maxWidth="sm" sx={{ height: "100vh" }}>
@@ -29,18 +33,29 @@ function App() {
                         <QuestList loading={loading} />
                     </Box>
                 </Stack>
-                <IconButton
-                    onClick={() => setSettingsOpen((prev) => !prev)}
-                    sx={{ position: "absolute", top: 10, left: 10 }}
-                >
-                    <Settings />
-                </IconButton>
-                {error && <ErrorModal />}
-                {settingsOpen && (
-                    <SettingsMenu
-                        onCloseSettings={() => setSettingsOpen(false)}
-                    />
-                )}
+                <Box position="absolute" top={"3vh"} left={"3vh"}>
+                    <IconMenu>
+                        <IconButton
+                            onClick={() => setSettingsOpen((prev) => !prev)}
+                        >
+                            <SettingsIcon />
+                        </IconButton>
+                        <IconButton
+                            onClick={() => setAboutOpen((prev) => !prev)}
+                        >
+                            <InfoIcon />
+                        </IconButton>
+                    </IconMenu>
+                </Box>
+                <ErrorModal />
+                <SettingsMenu
+                    open={settingsOpen}
+                    onCloseSettings={() => setSettingsOpen(false)}
+                />
+                <AboutModal
+                    open={aboutOpen}
+                    onCloseAbout={() => setAboutOpen(false)}
+                />
             </QuestContextProvider>
         </Container>
     );

@@ -14,12 +14,13 @@ import { QuestContext } from "../store/QuestContextProvider";
 
 interface SettingsMenuProps {
     onCloseSettings: () => void;
+    open: boolean
 }
 
 const MAX_STEPS = 15;
 const MIN_STEPS = 1;
 
-const SettingsMenu = ({ onCloseSettings }: SettingsMenuProps) => {
+const SettingsMenu = ({ open, onCloseSettings }: SettingsMenuProps) => {
     const { darkMode, setDarkMode, stepAmount, setStepAmount } =
         useContext(AppContext);
     const { clearQuests } = useContext(QuestContext);
@@ -60,7 +61,7 @@ const SettingsMenu = ({ onCloseSettings }: SettingsMenuProps) => {
     };
 
     return (
-        <Modal open={true}>
+        <Modal open={open}>
             <Container
                 maxWidth="sm"
                 sx={{
