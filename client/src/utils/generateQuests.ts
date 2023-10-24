@@ -8,7 +8,7 @@ export const generateQuests = async (prompt: string, parent: string, amount: num
     const generatedQuests: Quest[] = [];
     try {
         const res = await fetch(`${process.env.VITE_BACKEND_URI}/quest`, {
-            method: "POST",
+            method: "GET",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 stepAmount: amount,
