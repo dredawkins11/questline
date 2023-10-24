@@ -4,13 +4,14 @@ import react from "@vitejs/plugin-react-swc";
 // https://vitejs.dev/config/
 export default ({ mode }) => {
     process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
+    console.log(process.env)
     
     return defineConfig({
         plugins: [react()],
         server: {
             proxy: {
                 "/quest": {
-                    target: import.meta.env.VITE_BACKEND_URI,
+                    target: process.env.VITE_BACKEND_URI,
                     changeOrigin: true,
                 },
             },
