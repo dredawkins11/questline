@@ -6,7 +6,6 @@ export default ({ mode }) => {
     process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
 
     return defineConfig({
-        base: "/questline",
         plugins: [react()],
         server: {
             proxy: {
