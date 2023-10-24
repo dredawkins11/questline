@@ -4,11 +4,15 @@ interface QuestResponseBody {
     steps: string[];
 }
 
-export const generateQuests = async (prompt: string, parent: string, amount: number = 5) => {
+export const generateQuests = async (
+    prompt: string,
+    parent: string,
+    amount: number = 5
+) => {
     const generatedQuests: Quest[] = [];
     try {
-        const res = await fetch(`/quest`, {
-        // const res = await fetch(`${import.meta.env.VITE_BACKEND_URI}/quest`, {
+        // const res = await fetch(`/quest`, {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URI}/quest`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -17,7 +21,7 @@ export const generateQuests = async (prompt: string, parent: string, amount: num
             }),
         });
         if (res.status == 400) {
-            throw new Error("Bad Prompt")
+            throw new Error("Bad Prompt");
         }
         const data: QuestResponseBody = await res.json();
 
@@ -33,11 +37,10 @@ export const generateQuests = async (prompt: string, parent: string, amount: num
         });
     } catch (error) {
         console.log(error);
-        return {error}
+        return { error };
     }
-    return {generatedQuests};
+    return { generatedQuests };
 };
-
 
 export const randomId = () =>
     Date.now().toString(36) + Math.random().toString(36).substring(2);

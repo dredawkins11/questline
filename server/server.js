@@ -1,5 +1,6 @@
 import "dotenv/config.js";
 import express from "express"
+import cors from "cors"
 import { newQuest } from "./quest.js";
 
 const PORT = process.env.PORT || 3001;
@@ -7,6 +8,9 @@ const app = express();
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(cors({
+    origin: process.env.CORS_ORIGIN || "*"
+}))
 app.use( (req, res, next) => {
     console.log(req.body);
     next()
