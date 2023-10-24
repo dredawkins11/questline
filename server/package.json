@@ -5,8 +5,7 @@
     "main": "index.js",
     "scripts": {
         "postinstall": "tsc",
-        "start": "node dist/server.ts",
-        "watch": "nodemon server.ts"
+        "start": "node dist/server.js"
     },
     "keywords": [],
     "author": "",
