@@ -7,7 +7,8 @@ interface QuestResponseBody {
 export const generateQuests = async (prompt: string, parent: string, amount: number = 5) => {
     const generatedQuests: Quest[] = [];
     try {
-        const res = await fetch(`${import.meta.env.VITE_BACKEND_URI}/quest`, {
+        const res = await fetch(`/quest`, {
+        // const res = await fetch(`${import.meta.env.VITE_BACKEND_URI}/quest`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
