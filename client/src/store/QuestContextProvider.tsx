@@ -7,7 +7,7 @@ interface QuestContextProviderProps {
 }
 
 interface QuestContext {
-    loading: boolean;
+    // loading: boolean;
     quests: Quest[];
     getChildren: (id: string) => Quest[];
     getChildrenIds: (id: string) => string[];
@@ -18,18 +18,18 @@ interface QuestContext {
 }
 
 const QuestContext = createContext<QuestContext>({
-    loading: false,
+    // loading: false,
     quests: [],
-    getChildren: (id: string) => [],
-    getChildrenIds: (id: string) => [],
-    addQuests: (quests: Quest | Quest[]) => {},
-    editQuest: (quest: Quest, id: string) => {},
-    deleteQuest: (id: string) => {},
+    getChildren: (_id: string) => [],
+    getChildrenIds: (_id: string) => [],
+    addQuests: (_quests: Quest | Quest[]) => {},
+    editQuest: (_quest: Quest, _id: string) => {},
+    deleteQuest: (_id: string) => {},
     clearQuests: () => {}
 });
 
 const QuestContextProvider = ({ children }: QuestContextProviderProps) => {
-    const [loading, setLoading] = useState<boolean>(false);
+    // const [loading, setLoading] = useState<boolean>(false);
     const [quests, setQuests] = useState<Quest[]>([]);
 
     const storedQuests: string | null = localStorage.getItem("quests");
@@ -98,7 +98,7 @@ const QuestContextProvider = ({ children }: QuestContextProviderProps) => {
     return (
         <QuestContext.Provider
             value={{
-                loading,
+                // loading,
                 quests,
                 getChildren,
                 getChildrenIds,

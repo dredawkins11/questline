@@ -15,11 +15,11 @@ interface AppContext {
 
 const AppContext = createContext<AppContext>({
     darkMode: true,
-    setDarkMode: (value: boolean) => {},
+    setDarkMode: (_value: boolean) => {},
     stepAmount: 5,
-    setStepAmount: (value: number) => {},
+    setStepAmount: (_value: number) => {},
     error: null,
-    setError: (value: Error | null) => {},
+    setError: (_value: Error | null) => {},
 });
 
 const AppContextProvider = ({ children }: AppContextProviderProps) => {
