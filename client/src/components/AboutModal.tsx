@@ -1,4 +1,4 @@
-import { Add, Edit, Menu } from "@mui/icons-material"
+import { Add, Edit} from "@mui/icons-material"
 import { Button, Container, Modal, Paper, Typography } from "@mui/material"
 
 interface AboutModalProps {
