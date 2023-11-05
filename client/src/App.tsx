@@ -57,7 +57,6 @@ function App() {
         [darkMode]
     );
 
-    console.log(theme.palette.mode)
 
     return (
         <ThemeProvider theme={theme}>
