@@ -9,7 +9,7 @@ interface QuestContext {
     editQuest: (quest: Quest, id: string) => void;
     deleteQuest: (id: string) => void;
     clearQuests: () => void
-    selectQuest: (id: string) => void
+    selectQuest: (id: string | null) => void
 }
 
 const QuestContext = createContext<QuestContext>({
@@ -20,7 +20,7 @@ const QuestContext = createContext<QuestContext>({
     editQuest: (_quest: Quest, _id: string) => {},
     deleteQuest: (_id: string) => {},
     clearQuests: () => {},
-    selectQuest: (_id: string) => {},
+    selectQuest: (_id: string | null) => {},
 });
 
 

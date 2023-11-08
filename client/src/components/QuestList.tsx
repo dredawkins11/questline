@@ -12,16 +12,22 @@ interface QuestListProps {
 }
 
 const QuestList = ({ loading }: QuestListProps) => {
-    const {quests, selectQuest } = useContext(QuestContext);
-
+    const { quests, selectQuest } = useContext(QuestContext);
 
     return (
-        <Stack width={1} height={1} sx={{ overflowY: "scroll" }} padding={1}>
+        <Stack
+            sx={(theme) => ({
+                width: 1,
+                height: 1,
+                padding: 3,
+                gap: 3,
+                overflowY: "scroll",
+            })}
+        >
             {quests.map((quest) => (
                 <QuestItem
                     key={quest.id}
-                    questTitle={quest.title}
-                    questId={quest.id}
+                    quest={quest}
                     onSelect={selectQuest}
                 />
             ))}

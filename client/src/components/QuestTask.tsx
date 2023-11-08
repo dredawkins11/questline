@@ -20,17 +20,17 @@ const QuestTask = ({ task, last }: QuestTaskProps) => {
                 <Checkbox sx={{padding: 0}} />
                 {!last && <Line direction="vertical" flow="column" />}
             </Stack>
-            <Typography variant="body1" flexGrow={1} mb={2}>
+            <Typography variant="body2" flexGrow={1} mb={2}>
                 {task}
             </Typography>
-            <IconMenu>
+            {/* <IconMenu>
                 <IconButton>
                     <Edit />
                 </IconButton>
                 <IconButton>
                     <Close />
                 </IconButton>
-            </IconMenu>
+            </IconMenu> */}
         </Stack>
     );
 };

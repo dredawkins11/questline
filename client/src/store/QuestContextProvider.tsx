@@ -8,7 +8,7 @@ interface QuestContextProviderProps {
 
 const DUMMY_QUESTS: Quest[] = [
     {
-        prompt: "I need to do something awesome!",
+        prompt: "I need to slay the demon king threatening my kingdom",
         title: "Slay the Demon King",
         description:
             "To complete this epic quest, I must embark on a perilous journey to vanquish the malevolent Demon King. This daunting task will test my courage, skill, and determination. By defeating the Demon King, I will bring peace to the realm, ensuring the safety of its inhabitants and securing my place in the annals of legends.",
@@ -27,7 +27,7 @@ const DUMMY_QUESTS: Quest[] = [
         id: "1",
     },
     {
-        prompt: "nunya",
+        prompt: "I need to clean my house",
         title: "Maiden's Cleanse",
         description:
             "My home needs a thorough cleansing. It's time to conquer this quest, for a tidy abode is a peaceful sanctuary. The clutter has grown, and I seek to restore order and serenity. By completing this task, I will bask in the satisfaction of a pristine living space. Let the Maiden's Cleanse begin!",
@@ -90,9 +90,8 @@ const QuestContextProvider = ({ children }: QuestContextProviderProps) => {
         setQuests(filteredQuests);
     };
 
-    const selectQuest = (id: string) => {
+    const selectQuest = (id: string | null) => {
         const newSelectedQuest = DUMMY_QUESTS.find((quest) => quest.id === id);
-        console.log(newSelectedQuest);
 
         if (!newSelectedQuest || newSelectedQuest == selectedQuest) {
             setSelectedQuest(null);

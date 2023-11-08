@@ -23,12 +23,11 @@ import QuestTask from "./QuestTask";
 import Line from "./ui/Line";
 
 interface QuestItemProps {
-    questTitle: string;
-    questId: string,
-    onSelect: (id: string) => void
+    quest: Quest;
+    onSelect: (id: string) => void;
 }
 
-const QuestItem = ({ questTitle, questId, onSelect }: QuestItemProps) => {
+const QuestItem = ({ quest, onSelect }: QuestItemProps) => {
     // const { quests, addQuests, editQuest, deleteQuest } =
     //     useContext(QuestContext);
     // const { setError } = useContext(AppContext);
@@ -112,11 +111,10 @@ const QuestItem = ({ questTitle, questId, onSelect }: QuestItemProps) => {
     //     setEditTimeout(timeout);
     // };
 
-
     return (
         <>
             <Box
-                onClick={() => onSelect(questId)}
+                onClick={() => onSelect(quest.id)}
                 display="flex"
                 alignItems="center"
                 justifyContent="space-between"
@@ -145,42 +143,10 @@ const QuestItem = ({ questTitle, questId, onSelect }: QuestItemProps) => {
                     }
                 }
             >
-                <Typography variant="h5">{questTitle}</Typography>
-                {/* <Accordion>
-                    <AccordionSummary expandIcon={<ExpandMore />}>
-                        <Typography variant="h5">{quest.title}</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Stack gap={3}>
-                            <Typography>{quest.description}</Typography>
-                            <Stack direction="row" alignItems="center" gap={3}>
-                                <Line direction="horizontal" flow="row" sx={(theme)=>({backgroundColor: theme.palette.text.primary})}/>
-                                <Typography variant="h5">Tasks</Typography>
-                                <Line direction="horizontal" flow="row" sx={(theme)=>({backgroundColor: theme.palette.text.primary})}/>
-                            </Stack>
-                            <Stack>
-                                {quest.tasks.map((task, i) => (
-                                    <QuestTask
-                                        key={i}
-                                        task={task}
-                                        last={i == quest.tasks.length - 1}
-                                    />
-                                ))}
-                            </Stack>
-                            <Stack
-                                direction="row"
-                                justifyContent="space-around"
-                                sx={(theme) => ({
-                                    height: theme.spacing(8)
-                                })}
-                            >
-                                <Button>Regenerate Tasks</Button>
-                                <Line direction="vertical" flow="row" />
-                                <Button>Add New Task</Button>
-                            </Stack>
-                        </Stack>
-                    </AccordionDetails>
-                </Accordion> */}
+                <Stack direction="column">
+                    <Typography variant="h5">{quest.title}</Typography>
+                    <Typography variant="caption" color="text.secondary">{quest.prompt}</Typography>
+                </Stack>
             </Box>
         </>
     );
