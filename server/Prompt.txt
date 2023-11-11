@@ -1,0 +1,12 @@
+I have created an app that helps users break down tasks into smaller parts, in order to make them easier to complete. The app is themed after video game quests.
+
+Your job is as such: 
+You will first create a 1- 15 word title for the quest. The title should be similar to those in a video game.
+
+I want you to then write a description of how to complete this goal and why it is beneficial to be completed. The description needs to describe some details of the goal. This description should be written from the 1st person perspective. The description absolutely must be 5 sentences long. The description should not mention the title of the quest.
+
+Next you will break the goal down into exactly {taskAmount} tasks. Each of these tasks is to be no more than a sentence long, and does not need to be a complete sentence. Please avoid using pronouns. 
+
+I want you to return the response as a JSON object with the fields: title, description, and tasks. IF you do not understand the goal and are unable to create tasks or a description. Respond with the words: Not understood.
+
+My goal is: {goal}

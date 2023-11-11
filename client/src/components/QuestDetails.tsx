@@ -11,15 +11,14 @@ import { Quest } from "../types";
 import Line from "./ui/Line";
 import QuestTask from "./QuestTask";
 import { Close, Edit } from "@mui/icons-material";
-import { useContext } from "react";
-import QuestContext from "../store/QuestContext";
 
 interface QuestDetailsProps {
     quest: Quest;
+    onEditQuest: (id: string, quest: Quest) => void
+    onSelectQuest: (id: string) => void
 }
 
-const QuestDetails = ({ quest }: QuestDetailsProps) => {
-    const { selectQuest } = useContext(QuestContext);
+const QuestDetails = ({ quest, onSelectQuest }: QuestDetailsProps) => {
 
     const theme = useTheme();
     const smallScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -41,7 +40,7 @@ const QuestDetails = ({ quest }: QuestDetailsProps) => {
                     >
                         <IconButton
                             size="small"
-                            onClick={() => selectQuest(null)}
+                            onClick={() => onSelectQuest("")}
                         >
                             <Close />
                         </IconButton>

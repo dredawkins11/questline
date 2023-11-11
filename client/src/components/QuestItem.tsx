@@ -1,26 +1,9 @@
 import {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
     Box,
-    Button,
-    Checkbox,
-    IconButton,
     Stack,
-    TextField,
-    Tooltip,
     Typography,
 } from "@mui/material";
 import { Quest } from "../types";
-import { ExpandMore } from "@mui/icons-material";
-// import { useContext, useState } from "react";
-// import QuestContext from "../store/QuestContext";
-// import { generateQuests, randomId } from "../utils/generateQuests";
-// import { AppContext } from "../store/AppContextProvider";
-// import PromptError from "../utils/PromptError";
-// import QuestSkeleton from "./QuestSkeleton";
-import QuestTask from "./QuestTask";
-import Line from "./ui/Line";
 
 interface QuestItemProps {
     quest: Quest;
@@ -28,88 +11,6 @@ interface QuestItemProps {
 }
 
 const QuestItem = ({ quest, onSelect }: QuestItemProps) => {
-    // const { quests, addQuests, editQuest, deleteQuest } =
-    //     useContext(QuestContext);
-    // const { setError } = useContext(AppContext);
-
-    // const [addingSubQuest, setAddingSubQuest] = useState<boolean>(false);
-    // const [questText, setQuestText] = useState(quest.text);
-    // const [originalText, setOriginalText] = useState(quest.text);
-    // const [editTimeout, setEditTimeout] = useState<
-    //     NodeJS.Timeout | undefined
-    // >();
-    // const [editing, setEditing] = useState(false);
-    // const [inputError, setInputError] = useState(false);
-    // const [loading, setLoading] = useState(false);
-
-    // const toggleEdit = () => {
-    //     if (!editing) {
-    //         startEditTimer(5000);
-    //         setOriginalText(questText);
-    //         setEditing(true);
-    //         return;
-    //     }
-    //     if (questText.trim() == "") {
-    //         setQuestText(originalText);
-    //         setInputError(true);
-    //         return;
-    //     }
-    //     clearTimeout(editTimeout);
-    //     const editedQuest = { ...quest, text: questText };
-    //     editQuest(editedQuest, quest.id);
-    //     setEditing(false);
-    // };
-
-    // const toggleAdding = () => {
-    //     if (editing) toggleEdit();
-    //     setAddingSubQuest(!addingSubQuest);
-    // };
-
-    // const addSubQuest = async (generate?: boolean) => {
-    //     if (generate) {
-    //         setLoading(true);
-    //         const { generatedQuests, error } = await generateQuests(
-    //             quest.text,
-    //             quest.id
-    //         );
-    //         if (error || !generatedQuests) {
-    //             setLoading(false);
-    //             setError(new PromptError());
-    //             return;
-    //         }
-    //         setLoading(false);
-    //         addQuests(generatedQuests);
-    //         return;
-    //     }
-    //     const newQuest: Quest = {
-    //         prompt: quest.prompt,
-    //         text: "New quest",
-    //         completed: false,
-    //         parent: quest.id,
-    //         id: randomId(),
-    //     };
-    //     addQuests(newQuest);
-    // };
-
-    // const completeQuest = () => {
-    //     editQuest({ ...quest, completed: !quest.completed }, quest.id);
-    // };
-
-    // const onInputChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    //     const value = e.target.value;
-    //     setQuestText(value);
-    //     if (value.trim() == "") return setInputError(true);
-    //     setInputError(false);
-    // };
-
-    // const startEditTimer = (time: number) => {
-    //     const timeout = setTimeout(() => {
-    //         setQuestText(originalText);
-    //         setInputError(false);
-    //         setEditing(false);
-    //     }, time);
-    //     setEditTimeout(timeout);
-    // };
 
     return (
         <>

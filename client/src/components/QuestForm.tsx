@@ -1,5 +1,4 @@
 import {
-    AutoAwesome,
     ChevronLeft,
     ChevronRight,
     Close,
@@ -10,18 +9,14 @@ import {
     IconButton,
     Stack,
     TextField,
-    ToggleButton,
-    Tooltip,
     Typography,
     useMediaQuery,
     useTheme,
 } from "@mui/material";
 import { useState, FormEventHandler, useContext } from "react";
-import { generateQuests, randomId } from "../utils/generateQuests";
+import { generateQuest, randomId } from "../utils/generateQuests";
 import { Quest } from "../types";
-import { AppContext } from "../store/AppContextProvider";
 import PromptError from "../utils/PromptError";
-import QuestContext from "../store/QuestContext";
 import Line from "./ui/Line";
 
 const MAX_TASKS = 15;
@@ -30,11 +25,10 @@ const MIN_TASKS = 3;
 interface QuestFormProps {
     setLoading: (value: boolean) => void;
     onClose: () => void;
+    onAddQuest: (quest: Quest) => void;
 }
 
-const QuestForm = ({ setLoading, onClose }: QuestFormProps) => {
-    const { addQuests } = useContext(QuestContext);
-    const { setError } = useContext(AppContext);
+const QuestForm = ({ setLoading, onClose, onAddQuest }: QuestFormProps) => {
 
     const [isGenerative, setIsGenerative] = useState<boolean>(true);
     const [questPrompt, setQuestPrompt] = useState<string>();
@@ -44,25 +38,24 @@ const QuestForm = ({ setLoading, onClose }: QuestFormProps) => {
     const handleQuestSubmit: FormEventHandler = async (e) => {
         e.preventDefault();
         if (!questPrompt) return setInputError(true);
-        const parentQuest: Quest = {
-            prompt: questPrompt,
-            text: questPrompt,
-            completed: false,
-            id: randomId(),
-        };
-        if (!isGenerative) return addQuests(parentQuest);
+        if (!isGenerative) {
+            return onAddQuest({
+                prompt: `I need to ${questPrompt}`,
+                title: questPrompt,
+                description: "Quest Description....",
+                tasks: ["First I need to..."],
+                id: randomId(),
+            });
+        }
         setLoading(true);
-        const { generatedQuests, error } = await generateQuests(
-            questPrompt,
-            parentQuest.id
-        );
-        if (error || !generatedQuests) {
+        const { quest, error } = await generateQuest(questPrompt, taskAmount);
+        if (error || !quest) {
             setLoading(false);
-            setError(new PromptError());
+            // setError(new PromptError());
             return;
         }
         setLoading(false);
-        addQuests([parentQuest, ...generatedQuests]);
+        onAddQuest(quest);
     };
 
     const onInputChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -149,15 +142,33 @@ const QuestForm = ({ setLoading, onClose }: QuestFormProps) => {
                 </Stack>
             </Stack>
             <Stack alignItems="center" gap={2}>
-                <Typography variant="h4">Quest Prompt</Typography>
-                <TextField
-                    multiline
-                    minRows={3}
-                    maxRows={3}
-                    size="small"
-                    onChange={onInputChange}
-                    sx={{ width: 0.7 }}
-                />
+                {isGenerative ? (
+                    <>
+                        <Typography variant="h4">Quest Prompt</Typography>
+                        <TextField
+                            multiline
+                            minRows={3}
+                            maxRows={3}
+                            size="small"
+                            onChange={onInputChange}
+                            error={inputError}
+                            onBlur={() => setInputError(false)}
+                            sx={{ width: 0.7 }}
+                        />
+                    </>
+                ) : (
+                    <>
+                        <Typography variant="h4">Quest Title</Typography>
+                        <TextField
+                            size="small"
+                            inputProps={{ maxLength: 40 }}
+                            onChange={onInputChange}
+                            error={inputError}
+                            onBlur={() => setInputError(false)}
+                            sx={{ width: 0.7 }}
+                        />
+                    </>
+                )}
             </Stack>
             <Stack alignItems="center" gap={2}>
                 <Typography variant="h4">Task Amount</Typography>
@@ -185,7 +196,9 @@ const QuestForm = ({ setLoading, onClose }: QuestFormProps) => {
                     </IconButton>
                 </Stack>
             </Stack>
-            <Button sx={{marginY: 2}}>Start Quest!</Button>
+            <Button onClick={handleQuestSubmit} sx={{ marginY: 2 }}>
+                Start Quest!
+            </Button>
         </Box>
         // <form onSubmit={handleQuestSubmit} style={{ width: "100%" }}>
         //     <Box width="100%" display="flex" alignItems="center" gap={1}>

@@ -1,40 +1,50 @@
-import {
-    Box,
-    Button,
-    Container,
-    IconButton,
-    Paper,
-    Stack,
-    Tab,
-    Tabs,
-    Typography,
-    useMediaQuery,
-    useTheme,
-} from "@mui/material";
+import { Box, Button, Container, IconButton, Paper } from "@mui/material";
 import QuestList from "./components/QuestList";
-import { useContext, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import {
     Add,
     Info as InfoIcon,
-    Settings as SettingsIcon,
+    // Settings as SettingsIcon,
 } from "@mui/icons-material";
 import IconMenu from "./components/ui/IconMenu";
-import QuestContextProvider from "./store/QuestContextProvider";
-import QuestContext from "./store/QuestContext";
 import QuestDetails from "./components/QuestDetails";
-import Line from "./components/ui/Line";
 import TabMenu from "./components/ui/TabMenu";
 import QuestForm from "./components/QuestForm";
+import QuestReducer from "./utils/QuestReducer";
+import { Quest } from "./types";
 
 function App() {
-    const [loading, setLoading] = useState(false);
-    const { selectedQuest, selectQuest } = useContext(QuestContext);
+    const questData: string | null = localStorage.getItem("quests");
+    const savedQuests =
+        questData == null || questData == "" ? [] : JSON.parse(questData);
+    const [{ quests, selectedQuest }, dispatch] = useReducer(QuestReducer, {
+        quests: savedQuests,
+        selectedQuest: null,
+    });
+    useEffect(() => {
+        localStorage.setItem("quests", JSON.stringify(quests));
+    }, [quests]);
 
+    const [loading, setLoading] = useState(false);
     const [tab, setTab] = useState(0);
     const [adding, setAdding] = useState(false);
 
-    const theme = useTheme();
-    const smallScreen = useMediaQuery(theme.breakpoints.up("md"));
+    const handleSelectQuest = (target: string) => {
+        setAdding(false);
+        dispatch({ type: "SELECT_QUEST", payload: target });
+    };
+    const handleAddQuest = (quest: Quest) => {
+        dispatch({ type: "ADD_QUEST", payload: quest });
+    };
+    const handleEditQuest = (id: string, quest: Quest) => {
+        dispatch({ type: "EDIT_QUEST", payload: { id, quest } });
+    };
+    const handleDeleteQuest = (id: string) => {
+        dispatch({ type: "DELETE_QUEST", payload: id });
+    };
+    const handleClearQuests = () => {
+        dispatch({ type: "CLEAR_QUESTS" });
+    };
 
     return (
         <>
@@ -48,7 +58,7 @@ function App() {
                     pb: 3,
                 }}
             >
-                <Box>
+                {/* <Box>
                     <IconMenu>
                         <IconButton
                             onClick={() => setAboutOpen((prev) => !prev)}
@@ -56,7 +66,7 @@ function App() {
                             <InfoIcon />
                         </IconButton>
                     </IconMenu>
-                </Box>
+                </Box> */}
                 <TabMenu
                     tab={tab}
                     onChangeTab={(value: number) => setTab(value)}
@@ -79,12 +89,16 @@ function App() {
                             },
                         })}
                     >
-                        <QuestList loading={loading} />
+                        <QuestList
+                            loading={loading}
+                            quests={quests}
+                            onSelectQuest={handleSelectQuest}
+                        />
                         {!adding && (
                             <Button
                                 onClick={() => {
-                                    selectQuest(null)
-                                    setAdding(true)
+                                    handleSelectQuest("");
+                                    setAdding(true);
                                 }}
                                 sx={(theme) => ({
                                     position: "absolute",
@@ -111,19 +125,24 @@ function App() {
                         >
                             <Paper
                                 elevation={3}
-                                sx={(theme) => ({
+                                sx={{
                                     position: "absolute",
                                     top: 0,
                                     right: 0,
                                     width: 1,
                                     height: 1,
                                     paddingY: 2,
-                                })}
+                                }}
                             >
                                 {selectedQuest ? (
-                                    <QuestDetails quest={selectedQuest} />
+                                    <QuestDetails
+                                        quest={selectedQuest}
+                                        onSelectQuest={handleSelectQuest}
+                                        onEditQuest={handleEditQuest}
+                                    />
                                 ) : (
                                     <QuestForm
+                                        onAddQuest={handleAddQuest}
                                         onClose={() => setAdding(false)}
                                         setLoading={(value: boolean) =>
                                             setLoading(value)
@@ -133,68 +152,6 @@ function App() {
                             </Paper>
                         </Box>
                     )}
-                    {/* <QuestList loading={loading} />
-                    <Button>
-                        New Quest <Add />
-                    </Button>
-                    {selectedQuest && !adding && (
-                        <>
-                            <Paper
-                                elevation={3}
-                                sx={(theme) => ({
-                                    position: "absolute",
-                                    top: 0,
-                                    right: 0,
-                                    width: 1,
-                                    height: 1,
-                                    paddingBottom: 1,
-                                    [theme.breakpoints.up("md")]: {
-                                        width: 0.5,
-                                    },
-                                })}
-                            >
-                                <Box
-                                    sx={{
-                                        height: 1,
-                                        overflowY: "scroll",
-                                    }}
-                                >
-                                    <QuestDetails quest={selectedQuest} />
-                                </Box>
-                            </Paper>
-                            <Paper
-                                sx={(theme) => ({
-                                    display: "flex",
-                                    position: "absolute",
-                                    bottom: 0,
-                                    right: 0,
-                                    width: 1,
-                                    height: theme.spacing(8),
-                                    [theme.breakpoints.up("md")]: {
-                                        width: 0.5,
-                                    },
-                                    backgroundColor:
-                                        theme.palette.background.paper,
-                                    overflowY: "scroll",
-                                })}
-                            >
-                                <Stack
-                                    direction="row"
-                                    justifyContent="space-around"
-                                    width={1}
-                                >
-                                    <Button>Regenerate Tasks</Button>
-                                    <Line direction="vertical" flow="row" />
-                                    <Button>Add New Task</Button>
-                                </Stack>
-                            </Paper>
-                        </>
-                    )}
-                    {!selectedQuest && adding && (
-                        <QuestForm
-                            setLoading={(value: boolean) => setLoading(value)}
-                        />
-                    )} */}
                 </Paper>
             </Container>
             {/* <ErrorModal />
