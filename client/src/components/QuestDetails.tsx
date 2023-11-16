@@ -10,19 +10,27 @@ import {
 import { Quest } from "../types";
 import Line from "./ui/Line";
 import QuestTask from "./QuestTask";
-import { Close, Edit } from "@mui/icons-material";
+import { Add, Close, Edit } from "@mui/icons-material";
 
 interface QuestDetailsProps {
     quest: Quest;
-    onEditQuest: (id: string, quest: Quest) => void
-    onSelectQuest: (id: string) => void
+    onEditQuest: (id: string, quest: Quest) => void;
+    onSelectQuest: (id: string) => void;
 }
 
-const QuestDetails = ({ quest, onSelectQuest }: QuestDetailsProps) => {
-
+const QuestDetails = ({
+    quest,
+    onSelectQuest,
+    onEditQuest,
+}: QuestDetailsProps) => {
     const theme = useTheme();
     const smallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
+    const handleAddTask = () => {
+        const newQuest = {...quest, tasks: [...quest.tasks, "New task..."]}
+        onEditQuest(quest.id, newQuest);
+    };
+    console.log(quest.tasks[quest.tasks.length -1]);
     return (
         <>
             <Box
@@ -66,13 +74,17 @@ const QuestDetails = ({ quest, onSelectQuest }: QuestDetailsProps) => {
                         <Line direction="horizontal" flow="row" />
                     </Stack>
                     <Stack mb={8}>
-                        {quest.tasks.map((task, i) => (
+                        {quest.tasks.map((task, i) => {
+                            if(i == quest.tasks.length -1) console.log(task);
+                            console.log(i);
+                            
+                            return(
                             <QuestTask
                                 key={i}
                                 task={task}
                                 last={i == quest.tasks.length - 1}
                             />
-                        ))}
+                        )})}
                     </Stack>
                 </Stack>
             </Box>
@@ -87,9 +99,10 @@ const QuestDetails = ({ quest, onSelectQuest }: QuestDetailsProps) => {
                     backgroundColor: theme.palette.background.paper,
                 })}
             >
-                <Button>Regenerate Tasks</Button>
-                <Line direction="vertical" flow="row" />
-                <Button>Add New Task</Button>
+                <Button onClick={() => handleAddTask()}>
+                    Add New Task
+                    <Add />
+                </Button>
             </Stack>
         </>
     );

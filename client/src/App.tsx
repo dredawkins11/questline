@@ -17,14 +17,18 @@ function App() {
     const questData: string | null = localStorage.getItem("quests");
     const savedQuests =
         questData == null || questData == "" ? [] : JSON.parse(questData);
-    const [{ quests, selectedQuest }, dispatch] = useReducer(QuestReducer, {
+    const [{ quests, selectedQuestId }, dispatch] = useReducer(QuestReducer, {
         quests: savedQuests,
-        selectedQuest: null,
+        selectedQuestId: null,
     });
+    let selectedQuest = quests.find(quest => quest.id == selectedQuestId)
+    selectedQuest = selectedQuest ? selectedQuest : undefined
+
     useEffect(() => {
         localStorage.setItem("quests", JSON.stringify(quests));
     }, [quests]);
 
+   
     const [loading, setLoading] = useState(false);
     const [tab, setTab] = useState(0);
     const [adding, setAdding] = useState(false);
@@ -58,15 +62,15 @@ function App() {
                     pb: 3,
                 }}
             >
-                {/* <Box>
+                <Box>
                     <IconMenu>
                         <IconButton
-                            onClick={() => setAboutOpen((prev) => !prev)}
+                            onClick={handleClearQuests}
                         >
                             <InfoIcon />
                         </IconButton>
                     </IconMenu>
-                </Box> */}
+                </Box>
                 <TabMenu
                     tab={tab}
                     onChangeTab={(value: number) => setTab(value)}

@@ -10,7 +10,6 @@ interface QuestListProps {
 }
 
 const QuestList = ({ loading, quests, onSelectQuest }: QuestListProps) => {
-
     return (
         <Stack
             sx={{
@@ -21,13 +20,16 @@ const QuestList = ({ loading, quests, onSelectQuest }: QuestListProps) => {
                 overflowY: "scroll",
             }}
         >
-            {quests.map((quest) => (
+            {quests.map((quest) => {
+                console.log(quest.tasks[quest.tasks.length -1]);
+                return(
                 <QuestItem
                     key={quest.id}
                     quest={quest}
                     onSelect={onSelectQuest}
+                    
                 />
-            ))}
+            )})}
             {loading && <QuestSkeleton/>}
         </Stack>
     );

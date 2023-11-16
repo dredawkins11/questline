@@ -2,7 +2,7 @@ import { Quest } from "../types";
 
 interface QuestState {
     quests: Quest[];
-    selectedQuest: Quest | null;
+    selectedQuestId: string | null;
 }
 
 interface AddAction {
@@ -41,36 +41,37 @@ export default function (
     state: QuestState,
     action: QuestAction
 ): QuestState {
-    const { quests, selectedQuest } = state;
+    const { quests, selectedQuestId } = state;
     const { type } = action;
     if (type == "ADD_QUEST") {
         const newQuests = [...quests, action.payload];
-        return { quests: newQuests, selectedQuest };
+        return { quests: newQuests, selectedQuestId: selectedQuestId };
     }
     if (type == "EDIT_QUEST") {
-        const newQuests = [...quests];
+        const newQuests = quests.slice();
         const targetQuest = quests.findIndex(
             (quest) => quest.id === action.payload.id
-        );
-        newQuests[targetQuest] = action.payload.quest;
+            );
+        newQuests.splice(targetQuest, 1, action.payload.quest)
+        return { quests: newQuests, selectedQuestId: selectedQuestId };
     }
     if (type == "DELETE_QUEST") {
         const newQuests = quests.filter(
             (quest) => quest.id != action.payload
         );
-        return { quests: newQuests, selectedQuest };
+        return { quests: newQuests, selectedQuestId: selectedQuestId };
     }
     if (type == "SELECT_QUEST") {
         const targetQuest = quests.find(
             (quest) => quest.id == action.payload
         );
-        return { quests, selectedQuest: targetQuest ? targetQuest : null };
+        return { quests, selectedQuestId: targetQuest ? targetQuest.id : null };
     }
     if (type == "LOAD_QUESTS") {
-        return {quests: action.payload, selectedQuest}
+        return {quests: action.payload, selectedQuestId: selectedQuestId}
     }
     if (type == "CLEAR_QUESTS") {
-        return { quests: [], selectedQuest: null };
+        return { quests: [], selectedQuestId: null };
     }
     return state;
 }
