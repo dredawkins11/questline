@@ -21,7 +21,6 @@ const QuestList = ({ loading, quests, onSelectQuest }: QuestListProps) => {
             }}
         >
             {quests.map((quest) => {
-                console.log(quest.tasks[quest.tasks.length -1]);
                 return(
                 <QuestItem
                     key={quest.id}

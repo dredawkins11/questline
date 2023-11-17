@@ -38,7 +38,9 @@ const promptFunc = async (input, taskAmount) => {
 export const newQuest = async (prompt, taskAmount) => {
     const {goal, quest} = await promptFunc(prompt, taskAmount);
     if (!quest) throw new Error("Not understood.")
-    const questObject = {prompt: goal, ...JSON.parse(quest)};
-
+    let {title, description, tasks} = JSON.parse(quest)
+    tasks = tasks.map(task => ({text: task, completed: false}))
+    const questObject = {prompt: goal, title, description, tasks};
+    console.log(questObject);
     return questObject;
 };

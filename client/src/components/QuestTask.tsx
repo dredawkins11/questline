@@ -1,14 +1,36 @@
 import { Close, Edit } from "@mui/icons-material";
-import { Box, Checkbox, IconButton, Stack, Typography } from "@mui/material";
+import {
+    Checkbox,
+    IconButton,
+    Stack,
+    TextField,
+    Typography,
+} from "@mui/material";
 import IconMenu from "./ui/IconMenu";
 import Line from "./ui/Line";
+import { ChangeEventHandler, useEffect, useState } from "react";
+import { Task } from "../types";
 
 interface QuestTaskProps {
-    task: string;
+    task: Task;
     last: boolean;
+    editing: boolean;
+    onEdit: (task: Task) => void;
 }
 
-const QuestTask = ({ task, last }: QuestTaskProps) => {
+const QuestTask = ({ task, last, editing, onEdit }: QuestTaskProps) => {
+    const [taskText, setTaskText] = useState(task.text);
+    const [completed, setCompleted] = useState(task.completed);
+
+    useEffect(() => {
+        onEdit({ text: taskText, completed });
+    }, [taskText, completed]);
+
+    const handleTextChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+        const text = e.target.value;
+        setTaskText(text);
+    };
+
     return (
         <Stack
             direction="row"
@@ -17,20 +39,46 @@ const QuestTask = ({ task, last }: QuestTaskProps) => {
             gap={2}
         >
             <Stack direction="column" alignItems="center" alignSelf="stretch">
-                <Checkbox sx={{padding: 0}} />
+                <Checkbox
+                    sx={{ padding: 0 }}
+                    checked={completed}
+                    onChange={() => setCompleted((prev) => !prev)}
+                />
                 {!last && <Line direction="vertical" flow="column" />}
             </Stack>
-            <Typography variant="body2" flexGrow={1} mb={2}>
-                {task}
-            </Typography>
-            {/* <IconMenu>
-                <IconButton>
-                    <Edit />
-                </IconButton>
-                <IconButton>
-                    <Close />
-                </IconButton>
-            </IconMenu> */}
+            {editing ? (
+                <>
+                    <TextField
+                        variant="standard"
+                        fullWidth
+                        value={taskText}
+                        onChange={handleTextChange}
+                        sx={(theme) => ({
+                            "& .MuiInputBase-root": {
+                                ...theme.typography.body2,
+                                "&::before": {
+                                    bottom: -3,
+                                },
+                                "&::after": {
+                                    bottom: -3,
+                                },
+                                "& input": {
+                                    paddingY: 0.2,
+                                },
+                            },
+                        })}
+                    ></TextField>
+                    <IconMenu>
+                        <IconButton>
+                            <Close />
+                        </IconButton>
+                    </IconMenu>
+                </>
+            ) : (
+                <Typography variant="body2" flexGrow={1} mb={2}>
+                    {taskText}
+                </Typography>
+            )}
         </Stack>
     );
 };

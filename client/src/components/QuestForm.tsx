@@ -43,7 +43,7 @@ const QuestForm = ({ setLoading, onClose, onAddQuest }: QuestFormProps) => {
                 prompt: `I need to ${questPrompt}`,
                 title: questPrompt,
                 description: "Quest Description....",
-                tasks: ["First I need to..."],
+                tasks: [{text: "First I need to...", completed: false}],
                 id: randomId(),
             });
         }
