@@ -1,8 +1,4 @@
-import {
-    ChevronLeft,
-    ChevronRight,
-    Close,
-} from "@mui/icons-material";
+import { ChevronLeft, ChevronRight, Close } from "@mui/icons-material";
 import {
     Box,
     Button,
@@ -13,23 +9,29 @@ import {
     useMediaQuery,
     useTheme,
 } from "@mui/material";
-import { useState, FormEventHandler, useContext } from "react";
+import { useState, FormEventHandler } from "react";
 import { generateQuest, randomId } from "../utils/generateQuests";
-import { Quest } from "../types";
-import PromptError from "../utils/PromptError";
+import { AlertObject, Quest } from "../types";
 import Line from "./ui/Line";
 
 const MAX_TASKS = 15;
 const MIN_TASKS = 3;
 
 interface QuestFormProps {
+    loading: boolean;
     setLoading: (value: boolean) => void;
     onClose: () => void;
     onAddQuest: (quest: Quest) => void;
+    onAlert: (alert: AlertObject) => void;
 }
 
-const QuestForm = ({ setLoading, onClose, onAddQuest }: QuestFormProps) => {
-
+const QuestForm = ({
+    loading,
+    setLoading,
+    onClose,
+    onAddQuest,
+    onAlert,
+}: QuestFormProps) => {
     const [isGenerative, setIsGenerative] = useState<boolean>(true);
     const [questPrompt, setQuestPrompt] = useState<string>();
     const [taskAmount, setTaskAmount] = useState(5);
@@ -37,13 +39,21 @@ const QuestForm = ({ setLoading, onClose, onAddQuest }: QuestFormProps) => {
 
     const handleQuestSubmit: FormEventHandler = async (e) => {
         e.preventDefault();
+        if (loading)
+            return onAlert({
+                severity: "warning",
+                message: "Wait for previous quest to load, then try again.",
+            });
         if (!questPrompt) return setInputError(true);
         if (!isGenerative) {
             return onAddQuest({
                 prompt: `I need to ${questPrompt}`,
                 title: questPrompt,
                 description: "Quest Description....",
-                tasks: [{text: "First I need to...", completed: false}],
+                tasks: Array(taskAmount).fill({
+                    text: "Do this...",
+                    completed: false,
+                }),
                 id: randomId(),
             });
         }
@@ -51,7 +61,10 @@ const QuestForm = ({ setLoading, onClose, onAddQuest }: QuestFormProps) => {
         const { quest, error } = await generateQuest(questPrompt, taskAmount);
         if (error || !quest) {
             setLoading(false);
-            // setError(new PromptError());
+            onAlert({
+                severity: "error",
+                message: "Prompt error! Try again with a new prompt.",
+            });
             return;
         }
         setLoading(false);

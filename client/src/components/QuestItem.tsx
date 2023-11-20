@@ -1,16 +1,17 @@
-import {
-    Box,
-    Stack,
-    Typography,
-} from "@mui/material";
+import { Box, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { Quest } from "../types";
 
 interface QuestItemProps {
     quest: Quest;
+    showProgress: boolean;
     onSelect: (id: string) => void;
 }
 
-const QuestItem = ({ quest, onSelect }: QuestItemProps) => {
+const QuestItem = ({ quest, showProgress, onSelect }: QuestItemProps) => {
+    const theme = useTheme();
+    const smallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+    const amountCompleted = quest.tasks.filter((task) => task.completed).length;
 
     return (
         <>
@@ -19,35 +20,26 @@ const QuestItem = ({ quest, onSelect }: QuestItemProps) => {
                 display="flex"
                 alignItems="center"
                 justifyContent="space-between"
-                sx={
-                    {
-                        // backgroundColor: () => {
-                        //     if (parentCompleted) return "rgba(0,0,0,0)";
-                        //     if (addingSubQuest) return "action.hover";
-                        //     return "background.paper";
-                        // },
-                        // position: "relative",
-                        // height: "3rem",
-                        // "&::before": {
-                        //     position: "absolute",
-                        //     left: 0,
-                        //     right: 0,
-                        //     top: "-1px",
-                        //     height: "1px",
-                        //     content: '""',
-                        //     opacity: 1,
-                        //     userSelect: "text",
-                        //     backgroundColor: "rgba(255, 255, 255, 0.12)",
-                        //     transition:
-                        //         "opacity 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
-                        // },
-                    }
-                }
             >
                 <Stack direction="column">
                     <Typography variant="h5">{quest.title}</Typography>
-                    <Typography variant="caption" color="text.secondary">{quest.prompt}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                        {quest.prompt}
+                    </Typography>
                 </Stack>
+                {!smallScreen && showProgress && (
+                    <Stack>
+                        <Typography variant="h5" textAlign="right">
+                            {Math.round(
+                                (amountCompleted / quest.tasks.length) * 100
+                            )}
+                            %
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                            completed
+                        </Typography>
+                    </Stack>
+                )}
             </Box>
         </>
     );

@@ -5,11 +5,17 @@ import QuestSkeleton from "./QuestSkeleton";
 
 interface QuestListProps {
     loading: boolean;
-    quests: Quest[]
-    onSelectQuest: (id: string) => void
+    quests: Quest[];
+    showProgress: boolean;
+    onSelectQuest: (id: string) => void;
 }
 
-const QuestList = ({ loading, quests, onSelectQuest }: QuestListProps) => {
+const QuestList = ({
+    loading,
+    quests,
+    showProgress,
+    onSelectQuest,
+}: QuestListProps) => {
     return (
         <Stack
             sx={{
@@ -21,15 +27,16 @@ const QuestList = ({ loading, quests, onSelectQuest }: QuestListProps) => {
             }}
         >
             {quests.map((quest) => {
-                return(
-                <QuestItem
-                    key={quest.id}
-                    quest={quest}
-                    onSelect={onSelectQuest}
-                    
-                />
-            )})}
-            {loading && <QuestSkeleton/>}
+                return (
+                    <QuestItem
+                        key={quest.id}
+                        quest={quest}
+                        onSelect={onSelectQuest}
+                        showProgress={showProgress}
+                    />
+                );
+            })}
+            {loading && <QuestSkeleton />}
         </Stack>
     );
 };

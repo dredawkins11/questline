@@ -16,9 +16,10 @@ interface QuestTaskProps {
     last: boolean;
     editing: boolean;
     onEdit: (task: Task) => void;
+    onDelete: () => void
 }
 
-const QuestTask = ({ task, last, editing, onEdit }: QuestTaskProps) => {
+const QuestTask = ({ task, last, editing, onEdit, onDelete }: QuestTaskProps) => {
     const [taskText, setTaskText] = useState(task.text);
     const [completed, setCompleted] = useState(task.completed);
 
@@ -51,13 +52,15 @@ const QuestTask = ({ task, last, editing, onEdit }: QuestTaskProps) => {
                     <TextField
                         variant="standard"
                         fullWidth
+                        multiline
                         value={taskText}
                         onChange={handleTextChange}
                         sx={(theme) => ({
                             "& .MuiInputBase-root": {
                                 ...theme.typography.body2,
+                                padding: 0,
                                 "&::before": {
-                                    bottom: -3,
+                                    bottom: 3,
                                 },
                                 "&::after": {
                                     bottom: -3,
@@ -69,7 +72,7 @@ const QuestTask = ({ task, last, editing, onEdit }: QuestTaskProps) => {
                         })}
                     ></TextField>
                     <IconMenu>
-                        <IconButton>
+                        <IconButton onClick={onDelete}>
                             <Close />
                         </IconButton>
                     </IconMenu>

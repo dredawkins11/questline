@@ -11,27 +11,36 @@ import {
 import { Quest, Task } from "../types";
 import Line from "./ui/Line";
 import QuestTask from "./QuestTask";
-import { Add, Close, Edit } from "@mui/icons-material";
+import { Add, Check, Close, Delete, Edit } from "@mui/icons-material";
 import { ChangeEventHandler, useEffect, useState } from "react";
 
 interface QuestDetailsProps {
     quest: Quest;
     onEditQuest: (id: string, quest: Quest) => void;
+    onDeleteQuest: (id: string) => void;
     onSelectQuest: (id: string) => void;
 }
 
 const QuestDetails = ({
     quest,
-    onSelectQuest,
     onEditQuest,
+    onDeleteQuest,
+    onSelectQuest,
 }: QuestDetailsProps) => {
     const [editing, setEditing] = useState(false);
-    const [titleText, setTitleText] = useState(quest.title);
-    const [descriptionText, setDescriptionText] = useState(quest.description);
-    const [tasks, setTasks] = useState(quest.tasks);
+    const [titleText, setTitleText] = useState("");
+    const [descriptionText, setDescriptionText] = useState("");
+    const [tasks, setTasks] = useState<Task[]>([]);
 
     const theme = useTheme();
     const smallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+    useEffect(() => {
+        setEditing(false);
+        setTitleText(quest.title);
+        setDescriptionText(quest.description);
+        setTasks(quest.tasks);
+    }, [quest.id]);
 
     useEffect(() => {
         const newQuest = {
@@ -54,6 +63,14 @@ const QuestDetails = ({
     const handleTaskChange = (index: number, task: Task) => {
         const newTasks = [...tasks];
         newTasks[index] = task;
+        setTasks(newTasks);
+    };
+
+    const handleDeleteTask = (index: number) => {
+        console.log(index);
+
+        const newTasks = [...tasks];
+        newTasks.splice(index, 1);
         setTasks(newTasks);
     };
 
@@ -80,59 +97,81 @@ const QuestDetails = ({
                 }}
             >
                 <Stack position="relative" gap={3} paddingX={3}>
+                    {/* Title */}
                     <Stack
                         direction="row"
                         alignItems="center"
                         justifyContent="space-between"
                         gap={1}
                     >
-                        <IconButton
-                            size="small"
-                            onClick={() => onSelectQuest("")}
-                        >
-                            <Close />
-                        </IconButton>
-                        {!smallScreen && !editing && (
-                            <Line direction="horizontal" flow="row" />
-                        )}
                         {editing ? (
-                            <TextField
-                                variant="outlined"
-                                fullWidth
-                                value={titleText}
-                                onChange={handleTitleChange}
-                                sx={(theme) => ({
-                                    "& .MuiInputBase-root": {
-                                        ...theme.typography.h6,
-                                        "&::before": {
-                                            bottom: -3,
+                            <>
+                                <IconButton
+                                    size="small"
+                                    onClick={() => onDeleteQuest(quest.id)}
+                                >
+                                    <Delete />
+                                </IconButton>
+                                <TextField
+                                    variant="outlined"
+                                    fullWidth
+                                    value={titleText}
+                                    onChange={handleTitleChange}
+                                    sx={(theme) => ({
+                                        "& .MuiInputBase-root": {
+                                            ...theme.typography.h6,
+                                            "&::before": {
+                                                bottom: -3,
+                                            },
+                                            "&::after": {
+                                                bottom: -3,
+                                            },
+                                            "& input": {
+                                                textAlign: "center",
+                                                paddingY: 0.2,
+                                            },
                                         },
-                                        "&::after": {
-                                            bottom: -3,
-                                        },
-                                        "& input": {
-                                            textAlign: "center",
-                                            paddingY: 0.2,
-                                        },
-                                    },
-                                })}
-                            />
+                                    })}
+                                />
+                                <IconButton
+                                    size="small"
+                                    onClick={() => setEditing((prev) => !prev)}
+                                >
+                                    <Check />
+                                </IconButton>
+                            </>
                         ) : (
-                            <Typography variant="h6" textAlign="center">
-                                {titleText}
-                            </Typography>
+                            <>
+                                <IconButton
+                                    size="small"
+                                    onClick={() => onSelectQuest("")}
+                                >
+                                    <Close />
+                                </IconButton>
+                                {!smallScreen && (
+                                    <Line direction="horizontal" flow="row" />
+                                )}
+                                <Typography
+                                    variant="h6"
+                                    textAlign="center"
+                                    maxWidth={smallScreen ? 1 : 0.5}
+                                >
+                                    {quest.title}
+                                </Typography>
+                                {!smallScreen && (
+                                    <Line direction="horizontal" flow="row" />
+                                )}
+                                <IconButton
+                                    size="small"
+                                    onClick={() => setEditing((prev) => !prev)}
+                                >
+                                    <Edit />
+                                </IconButton>
+                            </>
                         )}
-
-                        {!smallScreen && !editing && (
-                            <Line direction="horizontal" flow="row" />
-                        )}
-                        <IconButton
-                            size="small"
-                            onClick={() => setEditing((prev) => !prev)}
-                        >
-                            <Edit />
-                        </IconButton>
                     </Stack>
+
+                    {/* Description */}
                     {editing ? (
                         <TextField
                             multiline
@@ -173,12 +212,15 @@ const QuestDetails = ({
                         <Typography variant="h6">Tasks</Typography>
                         <Line direction="horizontal" flow="row" />
                     </Stack>
+
+                    {/* Tasks */}
                     <Stack mb={8}>
                         {quest.tasks.map((task, i) => (
                             <QuestTask
-                                key={i}
+                                key={task.text + i}
                                 task={task}
                                 onEdit={handleTaskChange.bind(null, i)}
+                                onDelete={handleDeleteTask.bind(null, i)}
                                 last={i == quest.tasks.length - 1}
                                 editing={editing}
                             />
@@ -194,7 +236,8 @@ const QuestDetails = ({
                     bottom: 0,
                     width: 1,
                     height: 0.1,
-                    backgroundColor: theme.palette.background.paper,
+                    borderRadius: `0 0 ${theme.shape.borderRadius}px ${theme.shape.borderRadius}px`,
+                    background: `linear-gradient(0deg, ${theme.palette.background.paper} 50%, rgba(0,0,0,0) 100%)`,
                 })}
             >
                 <Button onClick={() => handleAddTask()}>

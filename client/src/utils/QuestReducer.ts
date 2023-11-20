@@ -62,9 +62,10 @@ export default function (
         return { quests: newQuests, selectedQuestId: selectedQuestId };
     }
     if (type == "SELECT_QUEST") {
-        const targetQuest = quests.find(
+        let targetQuest = quests.find(
             (quest) => quest.id == action.payload
         );
+        if (targetQuest?.id == selectedQuestId) targetQuest = undefined
         return { quests, selectedQuestId: targetQuest ? targetQuest.id : null };
     }
     if (type == "LOAD_QUESTS") {
