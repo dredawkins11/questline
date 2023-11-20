@@ -19,7 +19,7 @@ app.use( (req, res, next) => {
 app.options('*', cors())
 app.post("/quest", async (req, res) => {
     try {
-        const quest = await newQuest(req.body.task, req.body.stepAmount)
+        const quest = await newQuest(req.body.goal, req.body.taskAmount)
         res.send(quest)
     } catch (error) {
         console.log(error)

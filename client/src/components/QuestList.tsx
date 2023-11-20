@@ -1,35 +1,38 @@
 import { Stack } from "@mui/material";
-import ParentQuestItem from "./ParentQuestItem";
-import { useContext } from "react";
-import { QuestContext } from "../store/QuestContextProvider";
 import QuestItem from "./QuestItem";
+import { Quest } from "../types";
 import QuestSkeleton from "./QuestSkeleton";
 
 interface QuestListProps {
     loading: boolean;
+    quests: Quest[];
+    showProgress: boolean;
+    onSelectQuest: (id: string) => void;
 }
 
-const QuestList = ({ loading }: QuestListProps) => {
-    const { quests, getChildren } = useContext(QuestContext);
+const QuestList = ({
+    loading,
+    quests,
+    showProgress,
+    onSelectQuest,
+}: QuestListProps) => {
     return (
         <Stack
-            width={1}
-            height={0.8}
-            marginTop={3}
-            sx={{ overflowY: "scroll" }}
-            padding={1}
+            sx={{
+                width: 1,
+                height: 1,
+                // padding: 3,
+                // gap: 3,
+                overflowY: "scroll",
+            }}
         >
             {quests.map((quest) => {
-                if (quest.parent) return;
-                const questChildren = getChildren(quest.id);
-                if (questChildren.length == 0)
-                    return <QuestItem key={quest.id} quest={quest} />;
-
                 return (
-                    <ParentQuestItem
+                    <QuestItem
                         key={quest.id}
                         quest={quest}
-                        children={questChildren}
+                        onSelect={onSelectQuest}
+                        showProgress={showProgress}
                     />
                 );
             })}

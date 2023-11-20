@@ -1,107 +1,256 @@
 import {
+    Alert,
     Box,
+    Button,
     Container,
-    CssBaseline,
     IconButton,
+    Paper,
+    Snackbar,
     Stack,
-    ThemeProvider,
     Typography,
-    createTheme,
 } from "@mui/material";
 import QuestList from "./components/QuestList";
-import QuestForm from "./components/QuestForm";
-import { useContext, useMemo, useState } from "react";
-import { QuestContextProvider } from "./store/QuestContextProvider";
-import ErrorModal from "./components/ui/ErrorModal";
-import SettingsMenu from "./components/SettingsMenu";
+import { useEffect, useReducer, useState } from "react";
 import {
+    Add,
     Info as InfoIcon,
-    Settings as SettingsIcon,
+    MenuBook,
+    // Settings as SettingsIcon,
 } from "@mui/icons-material";
-import AboutModal from "./components/AboutModal";
 import IconMenu from "./components/ui/IconMenu";
-import { AppContext } from "./store/AppContextProvider";
+import QuestDetails from "./components/QuestDetails";
+import TabMenu from "./components/ui/TabMenu";
+import QuestForm from "./components/QuestForm";
+import QuestReducer from "./utils/QuestReducer";
+import { AlertObject, Quest, Task } from "./types";
+import AboutModal from "./components/AboutModal";
 
 function App() {
-    const { darkMode } = useContext(AppContext);
+    // Fetch quest data from local storage (can be null)
+    const questData: string | null = localStorage.getItem("quests");
 
-    const [loading, setLoading] = useState(false);
-    const [settingsOpen, setSettingsOpen] = useState(false);
-    const [aboutOpen, setAboutOpen] = useState(false);
+    // If there are no quests in local storage, save empty array, else grab those quests
+    const savedQuests =
+        questData == null || questData == "" ? [] : JSON.parse(questData);
 
-    const theme = useMemo(
-        () =>
-            createTheme({
-                palette: {
-                    mode: darkMode ? "dark" : "light",
-                },
-                components: {
-                    MuiCssBaseline: {
-                        styleOverrides: {
-                            "*::-webkit-scrollbar": {
-                                width: "3px",
-                            },
-                            "*::-webkit-scrollbar-track": {
-                                WebkitBoxShadow:
-                                    "inset 0 0 6px rgba(0,0,0,0.00)",
-                            },
-                            "*::-webkit-scrollbar-thumb": {
-                                backgroundColor: "rgba(255,255,255,.1)",
-                                border: "0 0 solid black",
-                                borderRadius: "5px",
-                            },
-                        },
-                    },
-                },
-            }),
-        [darkMode]
-    );
+    // Sub-optimal fix for bug where null tasks are added (can't reproduce or find why)
+    savedQuests.forEach((quest: Quest, i: number) => {
+        const tasks = quest.tasks.filter((task: Task) => task != null)
+        savedQuests[i].tasks = tasks
+    });
 
+    // Destructure state from reducer, initial state is the saved quests and null selected quest
+    const [{ quests, selectedQuestId }, dispatch] = useReducer(QuestReducer, {
+        quests: savedQuests,
+        selectedQuestId: null,
+    });
+
+    const [displayQuests, setDisplayQuests] = useState([...quests]); // Displayed quests, will be filtered
+    const [tab, setTab] = useState(0); // Which tab is selected
+    const [loading, setLoading] = useState(false); // Whether a quest is loading
+    const [adding, setAdding] = useState(false); // Whether a quest is being added
+    const [alert, setAlert] = useState<AlertObject | null>(null); // Manage current alert, if any
+    const [aboutOpen, setAboutOpen] = useState(false); // Manage about modal
+
+    // Currently open quest
+    let selectedQuest = quests.find((quest) => quest.id == selectedQuestId);
+    selectedQuest = selectedQuest ? selectedQuest : undefined;
+
+    // Based on selected tab, filter the quests
+    useEffect(() => {
+        if (selectedQuest) return;
+        setDisplayQuests(() => {
+            if (tab == 1)
+                return quests.filter((quest) =>
+                    quest.tasks.some((task) => !task.completed)
+                );
+            if (tab == 2)
+                return quests.filter((quest) =>
+                    quest.tasks.every((task) => task.completed)
+                );
+            return quests;
+        });
+    }, [tab, quests, selectedQuest]);
+
+    // Save quests to local storage each time they change
+    useEffect(() => {
+        localStorage.setItem("quests", JSON.stringify(quests));
+    }, [quests]);
+
+    // Handle different mutations to state with reducer dispatch functions
+    const handleSelectQuest = (target: string) => {
+        setAdding(false);
+        dispatch({ type: "SELECT_QUEST", payload: target });
+    };
+    const handleAddQuest = (quest: Quest) => {
+        setAdding(false);
+        dispatch({ type: "ADD_QUEST", payload: quest });
+        setAlert({
+            severity: "success",
+            message: "Quest added successfully!",
+        });
+    };
+    const handleEditQuest = (id: string, quest: Quest) => {
+        dispatch({ type: "EDIT_QUEST", payload: { id, quest } });
+    };
+    const handleDeleteQuest = (id: string) => {
+        dispatch({ type: "DELETE_QUEST", payload: id });
+        setAlert({
+            severity: "info",
+            message: "Quest deleted",
+        });
+    };
+    // const handleClearQuests = () => {
+    //     dispatch({ type: "CLEAR_QUESTS" });
+    //     setAlert({
+    //         severity: "info",
+    //         message: "All quests cleared",
+    //     });
+    // };
+    const handleAlertClose = () => {
+        setAlert(null);
+    };
 
     return (
-        <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Container maxWidth="sm" sx={{ height: "100vh" }}>
-                <QuestContextProvider>
-                    <Stack height="100vh" alignItems="center">
-                        <Typography variant="h4" margin={5}>
-                            Quest<strong>Line</strong>
-                        </Typography>
-                        <Box width={1} maxHeight={1} overflow="hidden">
-                            <QuestForm
-                                setLoading={(value: boolean) => {
-                                    setLoading(value);
-                                }}
-                            />
-                            <QuestList loading={loading} />
-                        </Box>
+        <>
+            <Container
+                sx={{
+                    height: "100dvh",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "stretch",
+                    paddingY: 3,
+                }}
+            >
+                <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    pb={3}
+                >
+                    <Stack direction="row" gap={1}>
+                        <MenuBook />
+                        <Typography>QuestLine</Typography>
                     </Stack>
-                    <Box position="absolute" top={"3vh"} left={"3vh"}>
-                        <IconMenu>
-                            <IconButton
-                                onClick={() => setSettingsOpen((prev) => !prev)}
+                    <IconMenu>
+                        <IconButton onClick={() => setAboutOpen(true)}>
+                            <InfoIcon />
+                        </IconButton>
+                    </IconMenu>
+                </Box>
+                <TabMenu
+                    tab={tab}
+                    onChangeTab={(value: number) => {
+                        setTab(value);
+                        handleSelectQuest("");
+                    }}
+                />
+                <Paper
+                    sx={{
+                        position: "relative",
+                        display: "flex",
+                        gap: 1,
+                        flexGrow: 1,
+                        width: 1,
+                    }}
+                >
+                    <Box
+                        sx={(theme) => ({
+                            position: "relative",
+                            width: selectedQuest != null || adding ? 0.5 : 1,
+                            [theme.breakpoints.down("md")]: {
+                                width: 1,
+                            },
+                        })}
+                    >
+                        <QuestList
+                            loading={loading}
+                            quests={displayQuests}
+                            onSelectQuest={handleSelectQuest}
+                            showProgress={
+                                !(selectedQuest != undefined || adding)
+                            }
+                        />
+                        {!adding && (
+                            <Button
+                                onClick={() => {
+                                    handleSelectQuest("");
+                                    setAdding(true);
+                                }}
+                                sx={(theme) => ({
+                                    position: "absolute",
+                                    bottom: theme.spacing(2),
+                                    left: "50%",
+                                    transform: "translateX(-50%)",
+                                })}
                             >
-                                <SettingsIcon />
-                            </IconButton>
-                            <IconButton
-                                onClick={() => setAboutOpen((prev) => !prev)}
-                            >
-                                <InfoIcon />
-                            </IconButton>
-                        </IconMenu>
+                                New Quest <Add />
+                            </Button>
+                        )}
                     </Box>
-                    <ErrorModal />
-                    <SettingsMenu
-                        open={settingsOpen}
-                        onCloseSettings={() => setSettingsOpen(false)}
-                    />
-                    <AboutModal
-                        open={aboutOpen}
-                        onCloseAbout={() => setAboutOpen(false)}
-                    />
-                </QuestContextProvider>
+                    {(selectedQuest || adding) && (
+                        <Box
+                            sx={(theme) => ({
+                                position: "absolute",
+                                right: 0,
+                                width: 1,
+                                height: 1,
+                                [theme.breakpoints.up("md")]: {
+                                    width: 0.5,
+                                },
+                            })}
+                        >
+                            <Paper
+                                elevation={3}
+                                sx={{
+                                    position: "absolute",
+                                    top: 0,
+                                    right: 0,
+                                    width: 1,
+                                    height: 1,
+                                    paddingY: 2,
+                                }}
+                            >
+                                {selectedQuest ? (
+                                    <QuestDetails
+                                        quest={selectedQuest}
+                                        onEditQuest={handleEditQuest}
+                                        onDeleteQuest={handleDeleteQuest}
+                                        onSelectQuest={handleSelectQuest}
+                                    />
+                                ) : (
+                                    <QuestForm
+                                        onAddQuest={handleAddQuest}
+                                        onClose={() => setAdding(false)}
+                                        onAlert={(alert: AlertObject) =>
+                                            setAlert(alert)
+                                        }
+                                        loading={loading}
+                                        setLoading={(value: boolean) =>
+                                            setLoading(value)
+                                        }
+                                    />
+                                )}
+                            </Paper>
+                        </Box>
+                    )}
+                </Paper>
             </Container>
-        </ThemeProvider>
+            {alert != null && (
+                <Snackbar
+                    open={alert != null}
+                    autoHideDuration={5000}
+                    onClose={handleAlertClose}
+                >
+                    <Alert severity={alert.severity}>{alert.message}</Alert>
+                </Snackbar>
+            )}
+            <AboutModal
+                open={aboutOpen}
+                onCloseAbout={() => setAboutOpen(false)}
+            />
+        </>
     );
 }
 
