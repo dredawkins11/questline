@@ -14,7 +14,7 @@ import { generateQuest, randomId } from "../utils/generateQuests";
 import { AlertObject, Quest } from "../types";
 import Line from "./ui/Line";
 
-const MAX_TASKS = 15;
+const MAX_TASKS = 100;
 const MIN_TASKS = 3;
 
 interface QuestFormProps {
