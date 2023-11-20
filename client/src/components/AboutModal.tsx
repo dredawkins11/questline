@@ -1,4 +1,4 @@
-import { Add, Edit, GitHub, Menu, Note, Twitter } from "@mui/icons-material"
+import { GitHub, Note, Twitter } from "@mui/icons-material"
 import { Button, Container, IconButton, Link, Modal, Paper, Stack, Typography } from "@mui/material"
 
 interface AboutModalProps {

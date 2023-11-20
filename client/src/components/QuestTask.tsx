@@ -1,4 +1,4 @@
-import { Close, Edit } from "@mui/icons-material";
+import { Close } from "@mui/icons-material";
 import {
     Checkbox,
     IconButton,
