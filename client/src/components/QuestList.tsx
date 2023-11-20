@@ -21,8 +21,8 @@ const QuestList = ({
             sx={{
                 width: 1,
                 height: 1,
-                padding: 3,
-                gap: 3,
+                // padding: 3,
+                // gap: 3,
                 overflowY: "scroll",
             }}
         >

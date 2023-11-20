@@ -10,9 +10,14 @@ import {
 } from "@mui/material";
 
 let theme = createTheme({
-    palette: { mode: "dark" },
+    palette: { mode: "dark",
+        primary: {
+            main: "#f09832"
+        }
+    },
     typography: {
-        fontFamily: "'Inknut Antiqua', serif",
+        fontFamily: "'Philosopher', sans-serif",
+        fontSize: 16,
         body2: {
             lineHeight: 1.7,
         },
@@ -40,12 +45,28 @@ let theme = createTheme({
             styleOverrides: {
                 root: ({ theme }) => ({
                     padding: 0,
+                    transition: "color .2s",
                     "&:hover": {
                         background: "none",
                         color: theme.palette.primary.main,
                     },
                 }),
             },
+        },
+        MuiButton: {
+            variants: [
+                {
+                    props: {variant: "text"},
+                    style: ({theme}) => ({
+                        color: theme.palette.text.primary,
+                        transition: "color .2s",
+                        "&:hover": {
+                            color: theme.palette.primary.main,
+                            background: "none"
+                        }
+                    })
+                }
+            ],
         },
         MuiPaper: {
             styleOverrides: {

@@ -22,7 +22,7 @@ import QuestDetails from "./components/QuestDetails";
 import TabMenu from "./components/ui/TabMenu";
 import QuestForm from "./components/QuestForm";
 import QuestReducer from "./utils/QuestReducer";
-import { AlertObject, Quest } from "./types";
+import { AlertObject, Quest, Task } from "./types";
 import AboutModal from "./components/AboutModal";
 
 function App() {
@@ -32,6 +32,12 @@ function App() {
     // If there are no quests in local storage, save empty array, else grab those quests
     const savedQuests =
         questData == null || questData == "" ? [] : JSON.parse(questData);
+
+    // Sub-optimal fix for bug where null tasks are added (can't reproduce or find why)
+    savedQuests.forEach((quest: Quest, i: number) => {
+        const tasks = quest.tasks.filter((task: Task) => task != null)
+        savedQuests[i].tasks = tasks
+    });
 
     // Destructure state from reducer, initial state is the saved quests and null selected quest
     const [{ quests, selectedQuestId }, dispatch] = useReducer(QuestReducer, {
@@ -94,13 +100,13 @@ function App() {
             message: "Quest deleted",
         });
     };
-    const handleClearQuests = () => {
-        dispatch({ type: "CLEAR_QUESTS" });
-        setAlert({
-            severity: "info",
-            message: "All quests cleared",
-        });
-    };
+    // const handleClearQuests = () => {
+    //     dispatch({ type: "CLEAR_QUESTS" });
+    //     setAlert({
+    //         severity: "info",
+    //         message: "All quests cleared",
+    //     });
+    // };
     const handleAlertClose = () => {
         setAlert(null);
     };

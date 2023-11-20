@@ -20,6 +20,16 @@ const QuestItem = ({ quest, showProgress, onSelect }: QuestItemProps) => {
                 display="flex"
                 alignItems="center"
                 justifyContent="space-between"
+                sx={{
+                    paddingX: 3,
+                    paddingY: 1.5,
+                    userSelect: "none",
+                    transition: "background-color .2s",
+                    "&:hover": {
+                        cursor: "pointer",
+                        backgroundColor: "rgba(255, 255, 255, 0.1)"
+                    }
+                }}
             >
                 <Stack direction="column">
                     <Typography variant="h5">{quest.title}</Typography>

@@ -34,7 +34,7 @@ const AboutModal = ({open, onCloseAbout}: AboutModalProps) =>{
                             About
                         </Typography>
                         <Typography variant="body2" textAlign="justify">
-                            Welcome to QuestLine! QuestLine is a personal project I created that utilizes OpenAI's ChatGPT. The app has the simple goal of turning ones personal goals into a game-like quest. It's use is simple: Click the 'New Quest' button at the bottom to start a new quest. Enter the thing you want to do, and how many steps, or tasks, you want the quest to be split into. (You can also turn off AI generation, if you want to manually input quest details instead.)
+                            Welcome to QuestLine! QuestLine is a personal project I created that utilizes OpenAI's ChatGPT. The app has the simple goal of transorming personal goals into a game-like quest. It's use is simple: Click the 'New Quest' button at the bottom to start a new quest. Enter the thing you want to do, and how many steps, or tasks, you want the quest to be split into. (You can also turn off AI generation, if you want to manually input quest details instead.)
                         </Typography>
                         <Typography variant="body2" textAlign="justify">Quests can be edited and deleted, once they are selected by clicking on them in the list. Additionally you can sort the quests by how completed they are with the tabs on the top.</Typography>
                         <Stack direction="row" justifyContent="center" gap={3} mb={3}>
